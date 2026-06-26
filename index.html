@@ -54,6 +54,15 @@
         </span>
         Charts
       </button>
+      <button onClick="{{ toggleGallery }}" aria-label="{{ galleryLabel }}" title="{{ galleryLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ galleryBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
+        <span style="display:grid;grid-template-columns:1fr 1fr;gap:2px;width:13px;height:13px;">
+          <span style="background:#33332b;border-radius:1px;"></span>
+          <span style="background:#33332b;border-radius:1px;"></span>
+          <span style="background:#33332b;border-radius:1px;"></span>
+          <span style="background:#33332b;border-radius:1px;"></span>
+        </span>
+        Gallery
+      </button>
     </div>
     <div style="display:flex;align-items:center;gap:16px;">
       <span style="font-size:12.5px;color:#8a8a7e;">Click any pin for field details</span>
@@ -87,6 +96,24 @@
               <span style="font-family:'Zen Kaku Gothic New',sans-serif;font-size:12px;color:#a6a699;margin-left:auto;">{{ it.jp }}</span>
             </div>
           </sc-for>
+        </div>
+      </aside>
+    </sc-if>
+
+    <sc-if value="{{ galleryOpen }}" hint-placeholder-val="{{ false }}">
+      <aside data-screen-label="Gallery" style="flex:none;width:400px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.08);">
+          <div>
+            <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">All fields</div>
+            <div style="font-size:15px;font-weight:600;color:#26261f;margin-top:1px;">Photo Gallery</div>
+          </div>
+          <button onClick="{{ closeGallery }}" aria-label="Hide gallery" style="border:none;background:none;cursor:pointer;color:#8a8a80;padding:4px 8px;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;" style-hover="color:#33332b;">Hide&nbsp;‹</button>
+        </div>
+        <div style="padding:10px 12px;border-bottom:1px solid rgba(40,46,32,0.08);">
+          <input value="{{ galleryQuery }}" onChange="{{ setGalleryQuery }}" placeholder="Filter fields…" style="width:100%;padding:8px 11px;font-size:13px;font-family:inherit;border:1px solid rgba(40,46,32,0.18);border-radius:3px;background:#fff;color:#1c1c1a;outline:none;" />
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:16px 16px 32px;">
+          <div>{{ galleryGrid }}</div>
         </div>
       </aside>
     </sc-if>
@@ -167,7 +194,7 @@
             <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#a6a699;font-weight:600;margin-bottom:9px;">Cultivars</div>
             <div style="display:flex;flex-wrap:wrap;gap:6px;">
               <sc-for list="{{ selected.cultivars }}" as="c" hint-placeholder-count="2">
-                <a href="{{ c.href }}" onClick="{{ c.onClick }}" rel="noopener" title="View {{ c.name }} cultivar info" style="font-size:12.5px;color:#3f4d36;background:rgba(93,113,80,0.10);border:1px solid rgba(93,113,80,0.22);padding:4px 10px;border-radius:999px;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;" style-hover="background:rgba(93,113,80,0.2);border-color:rgba(93,113,80,0.45);">{{ c.name }}<span style="opacity:0.5;font-size:10px;">↗</span></a>
+                <a href="{{ c.href }}" target="_blank" rel="noopener" title="View {{ c.name }} cultivar info" style="font-size:12.5px;color:#3f4d36;background:rgba(93,113,80,0.10);border:1px solid rgba(93,113,80,0.22);padding:4px 10px;border-radius:999px;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;" style-hover="background:rgba(93,113,80,0.2);border-color:rgba(93,113,80,0.45);">{{ c.name }}<span style="opacity:0.5;font-size:10px;">↗</span></a>
               </sc-for>
             </div>
           </div>
@@ -177,7 +204,7 @@
             <sc-if value="{{ selected.hasTeas }}" hint-placeholder-val="{{ true }}">
               <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;">
                 <sc-for list="{{ selected.teas }}" as="t" hint-placeholder-count="2">
-                  <li style="font-size:14px;color:#33332b;display:flex;gap:9px;align-items:baseline;"><span style="width:5px;height:5px;border-radius:50%;background:#5d7150;flex:none;transform:translateY(-2px);"></span><sc-if value="{{ t.hasLink }}" hint-placeholder-val="{{ true }}"><a href="{{ t.href }}" onClick="{{ t.onClick }}" rel="noopener" title="Shop {{ t.name }} at Obubu" style="color:#33332b;text-decoration:none;border-bottom:1px solid rgba(93,113,80,0.45);cursor:pointer;display:inline-flex;align-items:baseline;gap:5px;" style-hover="color:#5d7150;border-color:#5d7150;">{{ t.name }}<span style="opacity:0.5;font-size:10px;">↗</span></a></sc-if><sc-if value="{{ t.plain }}" hint-placeholder-val="{{ false }}"><span>{{ t.name }}</span></sc-if></li>
+                  <li style="font-size:14px;color:#33332b;display:flex;gap:9px;align-items:baseline;"><span style="width:5px;height:5px;border-radius:50%;background:#5d7150;flex:none;transform:translateY(-2px);"></span><sc-if value="{{ t.hasLink }}" hint-placeholder-val="{{ true }}"><a href="{{ t.href }}" target="_blank" rel="noopener" title="Shop {{ t.name }} at Obubu" style="color:#33332b;text-decoration:none;border-bottom:1px solid rgba(93,113,80,0.45);cursor:pointer;display:inline-flex;align-items:baseline;gap:5px;" style-hover="color:#5d7150;border-color:#5d7150;">{{ t.name }}<span style="opacity:0.5;font-size:10px;">↗</span></a></sc-if><sc-if value="{{ t.plain }}" hint-placeholder-val="{{ false }}"><span>{{ t.name }}</span></sc-if></li>
                 </sc-for>
               </ul>
             </sc-if>
@@ -189,42 +216,6 @@
           <a href="{{ selected.gmaps }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:26px;font-size:13px;color:#5d7150;text-decoration:none;border-bottom:1px solid rgba(93,113,80,0.4);padding-bottom:1px;">View location on Google Maps ↗</a>
         </div>
       </aside>
-    </sc-if>
-
-    <sc-if value="{{ cultivarModalOpen }}" hint-placeholder-val="{{ false }}">
-      <div onClick="{{ closeCultivarModal }}" style="position:fixed;inset:0;background:rgba(18,20,14,0.82);z-index:5000;display:flex;align-items:center;justify-content:center;padding:40px;">
-        <div onClick="{{ stop }}" style="width:min(1080px,90vw);height:86vh;background:#fbfaf5;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,0.5);">
-          <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.12);background:#fff;">
-            <div style="display:flex;align-items:baseline;gap:10px;min-width:0;">
-              <span style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;flex:none;">{{ cultivarModalKicker }}</span>
-              <span style="font-size:16px;font-weight:600;color:#26261f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ cultivarModalName }}</span>
-            </div>
-            <div style="display:flex;align-items:center;gap:6px;flex:none;">
-              <a href="{{ cultivarModalUrl }}" target="_blank" rel="noopener" style="font-size:12.5px;color:#5d7150;text-decoration:none;padding:7px 12px;border:1px solid rgba(93,113,80,0.3);border-radius:6px;display:inline-flex;align-items:center;gap:5px;" style-hover="background:rgba(93,113,80,0.08);">Open in new tab ↗</a>
-              <button onClick="{{ closeCultivarModal }}" aria-label="Close" style="width:34px;height:34px;border-radius:6px;border:1px solid rgba(40,46,32,0.16);background:#fff;color:#5b5b52;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:rgba(40,46,32,0.06);">×</button>
-            </div>
-          </div>
-          <div style="flex:1;position:relative;background:#eef0e8;">
-            <iframe src="{{ cultivarModalUrl }}" onLoad="{{ iframeOnLoad }}" title="{{ cultivarModalName }}" style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
-            <sc-if value="{{ iframeLoading }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;inset:0;z-index:2;background:#eef0e8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
-                <div style="width:36px;height:36px;border-radius:50%;border:3px solid rgba(93,113,80,0.2);border-top-color:#5d7150;animation:obSpin 0.8s linear infinite;"></div>
-                <div style="font-size:13px;color:#8a8a7e;">Loading…</div>
-              </div>
-            </sc-if>
-            <sc-if value="{{ iframeBlocked }}" hint-placeholder-val="{{ false }}">
-              <div style="position:absolute;inset:0;z-index:3;background:#f4f3ec;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:48px;">
-                <div style="width:52px;height:52px;border-radius:50%;background:rgba(40,46,32,0.08);display:flex;align-items:center;justify-content:center;">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a8a7e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                </div>
-                <div style="font-size:16px;font-weight:600;color:#26261f;">Unable to load page in window</div>
-                <div style="font-size:13px;color:#8a8a7e;max-width:320px;line-height:1.6;">This page cannot be displayed inside the map. Open it in a new tab to view it.</div>
-                <a href="{{ cultivarModalUrl }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#5d7150;color:#fff;font-size:14px;font-weight:500;text-decoration:none;padding:11px 24px;border-radius:6px;font-family:inherit;" style-hover="background:#3f4d36;">Open in new tab ↗</a>
-              </div>
-            </sc-if>
-          </div>
-        </div>
-      </div>
     </sc-if>
 
     <sc-if value="{{ lightboxOpen }}" hint-placeholder-val="{{ false }}">
@@ -276,16 +267,16 @@ class Component extends DCLogic {
     {n:28,en:'New Field',jp:'新茶畑（無名）',size:'858',emin:77,emax:86,natural:false,lat:34.777639,lng:135.8785,cultivars:['Yabukita'],teas:['No Harvest']}
   ];
 
-  state = { selectedId: null, hoveredId: null, query: '', imgStatus: {}, activePhoto: 0, chartsOpen: false, highlightIds: [], activeCultivar: null, hoverField: null, hoverCultivar: null, hoverElev: null, iframeStatus: 'idle' };
+  state = { selectedId: null, hoveredId: null, query: '', imgStatus: {}, activePhoto: 0, chartsOpen: false, galleryOpen: false, galleryQuery: '', highlightIds: [], activeCultivar: null, hoverField: null, hoverCultivar: null, hoverElev: null };
 
   CULTIVAR_AREAS = [
     ['Yabukita', 23897], ['Zairai', 7238], ['Okumidori', 4233], ['Gokou', 1443],
-    ['Sayama Kaori', 1235], ['Ujihikari', 940], ['Ujimidori', 882], ['Saemidori', 780],
+    ['Sayamakaori', 1235], ['Ujihikari', 940], ['Ujimidori', 882], ['Saemidori', 780],
     ['Saeakari', 757], ['Samidori', 672], ['Okuhikari', 605], ['Yamakai', 322]
   ];
   CULTIVAR_JP = {
     'Yabukita': 'やぶきた', 'Zairai': '在来', 'Okumidori': 'おくみどり', 'Gokou': 'ごこう',
-    'Sayama Kaori': 'さやまかおり', 'Ujihikari': '宇治ひかり', 'Ujimidori': '宇治みどり',
+    'Sayamakaori': 'さやまかおり', 'Ujihikari': '宇治ひかり', 'Ujimidori': '宇治みどり',
     'Saemidori': 'さえみどり', 'Saeakari': 'さえあかり', 'Samidori': 'さみどり',
     'Okuhikari': 'おくひかり', 'Yamakai': 'やまかい'
   };
@@ -347,7 +338,7 @@ class Component extends DCLogic {
   baseCultivar(name) { return name.replace(/\s*\(.*\)\s*/, '').trim(); }
   hueColor(i) { const h = (i * 137.508 + 18) % 360; const s = 43 + (i % 3) * 6; const l = 55 + (i % 4) * 4; return 'hsl(' + h.toFixed(0) + ',' + s + '%,' + l + '%)'; }
 
-  donut(items, hoverKey, opts) {
+  donut(items, hoverKey, activeKey, opts) {
     const R = React.createElement;
     const size = 220, sw = 38, r = (size - sw) / 2 - 2, cx = size / 2, cy = size / 2, C = 2 * Math.PI * r;
     const total = items.reduce((a, b) => a + b.value, 0) || 1;
@@ -355,10 +346,13 @@ class Component extends DCLogic {
     const arcs = items.map((it, i) => {
       const frac = it.value / total, len = frac * C, off = -acc * C; acc += frac;
       const isH = hoverKey != null && String(it.key) === String(hoverKey);
-      return R('circle', { key: i, cx, cy, r, fill: 'none', stroke: it.color, strokeWidth: isH ? sw + 7 : sw, strokeDasharray: len + ' ' + (C - len), strokeDashoffset: off, transform: 'rotate(-90 ' + cx + ' ' + cy + ')', style: { cursor: 'pointer', transition: 'stroke-width .12s, opacity .12s', opacity: (hoverKey != null && !isH) ? 0.38 : 1 }, onMouseEnter: () => opts.onHover(it.key), onMouseLeave: () => opts.onHover(null), onClick: () => opts.onClick(it) });
+      const isA = activeKey != null && String(it.key) === String(activeKey);
+      const dimmed = (hoverKey != null && !isH) || (activeKey != null && !isA && hoverKey == null);
+      return R('circle', { key: i, cx, cy, r, fill: 'none', stroke: it.color, strokeWidth: isH || isA ? sw + 7 : sw, strokeDasharray: len + ' ' + (C - len), strokeDashoffset: off, transform: 'rotate(-90 ' + cx + ' ' + cy + ')', style: { cursor: 'pointer', transition: 'stroke-width .12s, opacity .12s', opacity: dimmed ? 0.32 : 1 }, onMouseEnter: () => opts.onHover(it.key), onMouseLeave: () => opts.onHover(null), onClick: () => opts.onClick(it) });
     });
     const svg = R('svg', { width: size, height: size, viewBox: '0 0 ' + size + ' ' + size, style: { display: 'block' } }, arcs);
-    const hv = hoverKey != null ? items.find(it => String(it.key) === String(hoverKey)) : null;
+    const displayKey = hoverKey != null ? hoverKey : activeKey;
+    const hv = displayKey != null ? items.find(it => String(it.key) === String(displayKey)) : null;
     let center;
     if (hv) {
       const pct = hv.value / total * 100;
@@ -379,16 +373,20 @@ class Component extends DCLogic {
     return R('div', { style: { position: 'relative', width: size + 'px', height: size + 'px', margin: '4px auto 0' }, 'data-om-raster': '1' }, svg, centerDiv);
   }
 
-  legend(items, hoverKey, opts) {
+  legend(items, hoverKey, activeKey, opts) {
     const R = React.createElement;
     return R('div', { style: { display: 'grid', gridTemplateColumns: opts.cols || '1fr 1fr', gap: '2px 14px', marginTop: '16px' } },
-      items.map((it, i) => R('div', { key: i, onMouseEnter: () => opts.onHover(it.key), onMouseLeave: () => opts.onHover(null), onClick: () => opts.onClick(it), style: { display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer', padding: '2px 4px', borderRadius: '3px', background: (hoverKey != null && String(it.key) === String(hoverKey)) ? 'rgba(93,113,80,0.12)' : 'transparent' } },
-        R('span', { style: { width: '9px', height: '9px', borderRadius: '2px', flex: 'none', background: it.color } }),
-        R('span', { style: { fontSize: '12px', color: '#33332b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, it.label),
-        R('span', { style: { fontSize: '11px', color: '#a6a699', marginLeft: 'auto', flex: 'none' } }, opts.fmt ? opts.fmt(it) : ''))));
+      items.map((it, i) => {
+        const isA = activeKey != null && String(it.key) === String(activeKey);
+        const isH = hoverKey != null && String(it.key) === String(hoverKey);
+        return R('div', { key: i, onMouseEnter: () => opts.onHover(it.key), onMouseLeave: () => opts.onHover(null), onClick: () => opts.onClick(it), style: { display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer', padding: '3px 4px', borderRadius: '3px', borderLeft: isA ? '2px solid ' + it.color : '2px solid transparent', background: isA ? 'rgba(93,113,80,0.13)' : isH ? 'rgba(93,113,80,0.07)' : 'transparent' } },
+          R('span', { style: { width: '9px', height: '9px', borderRadius: '2px', flex: 'none', background: it.color, boxShadow: isA ? '0 0 0 2px ' + it.color + '55' : 'none' } }),
+          R('span', { style: { fontSize: '12px', color: isA ? '#26261f' : '#33332b', fontWeight: isA ? 600 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, it.label),
+          R('span', { style: { fontSize: '11px', color: '#a6a699', marginLeft: 'auto', flex: 'none' } }, opts.fmt ? opts.fmt(it) : ''));
+      }));
   }
 
-  elevationChart(hoverKey, onHover, onClick) {
+  elevationChart(hoverKey, activeKey, onHover, onClick) {
     const R = React.createElement;
     const fs = this.fields().slice().sort((a, b) => b.emax - a.emax);
     const MAX = 500, ticks = [0, 100, 200, 300, 400, 500];
@@ -398,9 +396,10 @@ class Component extends DCLogic {
       R('div', { style: { width: '58px', flex: 'none' } }));
     const rows = fs.map(f => {
       const isH = hoverKey != null && String(f.n) === String(hoverKey);
+      const isA = activeKey != null && String(f.n) === String(activeKey);
       const left = f.emin / MAX * 100, w = Math.max((f.emax - f.emin) / MAX * 100, 0.8);
-      return R('div', { key: f.n, onMouseEnter: () => onHover(f.n), onMouseLeave: () => onHover(null), onClick: () => onClick(f), style: { display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '2.5px 0', borderRadius: '3px', background: isH ? 'rgba(93,113,80,0.1)' : 'transparent' } },
-        R('span', { style: { width: '96px', flex: 'none', fontSize: '11px', color: '#33332b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '6px' } }, f.en),
+      return R('div', { key: f.n, onMouseEnter: () => onHover(f.n), onMouseLeave: () => onHover(null), onClick: () => onClick(f), style: { display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '2.5px 0', borderRadius: '3px', background: isA ? 'rgba(93,113,80,0.15)' : isH ? 'rgba(93,113,80,0.07)' : 'transparent', borderLeft: isA ? '2px solid ' + this.PRIMARY : '2px solid transparent' } },
+        R('span', { style: { width: '94px', flex: 'none', fontSize: '11px', color: isA ? '#26261f' : '#33332b', fontWeight: isA ? 600 : 400, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '6px' } }, f.en),
         R('div', { style: { position: 'relative', flex: 1, height: '12px' } },
           R('div', { style: { position: 'absolute', top: '5px', height: '2px', left: 0, right: 0, background: 'rgba(40,46,32,0.07)' } }),
           R('div', { style: { position: 'absolute', top: '3px', height: '6px', left: left + '%', width: w + '%', background: isH ? this.PRIMARY_DARK : this.PRIMARY, borderRadius: '999px', transition: 'background .12s' } })),
@@ -409,13 +408,60 @@ class Component extends DCLogic {
     return R('div', { 'data-om-raster': '1' }, scale, R('div', { style: { display: 'flex', flexDirection: 'column', gap: '1px' } }, rows));
   }
 
-  chartSelectField(id) { this.setState({ selectedId: id, activePhoto: 0, lightbox: false, highlightIds: [id], activeCultivar: null }); }
+  buildGalleryGrid(fields, query, selId) {
+    const R = React.createElement;
+    const q = query.trim().toLowerCase();
+    const shown = q ? fields.filter(f => f.en.toLowerCase().includes(q) || f.jp.includes(q)) : fields;
+    const withPhotos = shown.filter(f => f.photos && f.photos.length > 0);
+    const noPhotos = shown.filter(f => !f.photos || f.photos.length === 0);
+
+    const card = (f) => {
+      const isSel = f.n === selId;
+      const hero = f.photos[0];
+      return R('div', { key: f.n, onClick: () => this.chartSelectField(f.n), style: { cursor: 'pointer', borderRadius: '6px', overflow: 'hidden', background: '#fff', boxShadow: isSel ? '0 0 0 2px ' + this.PRIMARY + ', 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.08)', transition: 'box-shadow .15s' } },
+        R('div', { style: { position: 'relative', paddingTop: '66%', background: '#e9ece1' } },
+          R('img', { src: hero, alt: f.en, style: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }),
+          f.photos.length > 1 ? R('div', { style: { position: 'absolute', top: '7px', right: '7px', background: 'rgba(18,20,14,0.65)', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '2px 7px', borderRadius: '999px' } }, f.photos.length + ' photos') : null,
+          f.natural ? R('div', { style: { position: 'absolute', top: '7px', left: '7px', background: this.PRIMARY, color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '999px', letterSpacing: '0.06em', textTransform: 'uppercase' } }, 'Natural') : null),
+        R('div', { style: { padding: '9px 11px 10px' } },
+          R('div', { style: { fontSize: '13px', fontWeight: 600, color: '#26261f', lineHeight: 1.25 } }, f.en),
+          R('div', { style: { fontFamily: "'Zen Kaku Gothic New',sans-serif", fontSize: '11px', color: '#a6a699', marginTop: '1px' } }, f.jp)));
+    };
+
+    const noPhotoItem = (f) => R('div', { key: f.n, onClick: () => this.chartSelectField(f.n), style: { display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 10px', borderRadius: '4px', cursor: 'pointer', background: f.n === selId ? 'rgba(93,113,80,0.09)' : 'transparent' } },
+      R('div', { style: { width: '38px', height: '38px', borderRadius: '4px', background: '#eef0e8', flex: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' } },
+        R('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: '#b5b5a8', strokeWidth: 1.5 },
+          R('rect', { x: 3, y: 3, width: 18, height: 18, rx: 2 }),
+          R('circle', { cx: 8.5, cy: 8.5, r: 1.5 }),
+          R('path', { d: 'M21 15l-5-5L5 21' }))),
+      R('div', null,
+        R('div', { style: { fontSize: '13px', fontWeight: 500, color: '#26261f' } }, f.en),
+        R('div', { style: { fontFamily: "'Zen Kaku Gothic New',sans-serif", fontSize: '11px', color: '#a6a699' } }, f.jp)));
+
+    const sections = [];
+    if (withPhotos.length) {
+      sections.push(R('div', { key: 'grid', style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: noPhotos.length ? '24px' : 0 } }, withPhotos.map(card)));
+    }
+    if (noPhotos.length) {
+      sections.push(R('div', { key: 'nph' },
+        R('div', { style: { fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#b5b5a8', fontWeight: 600, marginBottom: '6px' } }, 'No photos yet'),
+        R('div', { style: { display: 'flex', flexDirection: 'column', gap: '2px' } }, noPhotos.map(noPhotoItem))));
+    }
+    if (!sections.length) sections.push(R('div', { key: 'empty', style: { fontSize: '13px', color: '#a6a699', textAlign: 'center', padding: '32px 0' } }, 'No fields match.'));
+    return R('div', null, ...sections);
+  }
+
+  chartSelectField(id) {
+    if (this.state.selectedId === id) { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null }); return; }
+    this.setState({ selectedId: id, activePhoto: 0, lightbox: false, highlightIds: [id], activeCultivar: null });
+  }
   chartHighlightCultivar(name) {
     const base = this.baseCultivar(name);
+    if (this.state.activeCultivar === base) { this.clearHighlight(); return; }
     const ids = this.fields().filter(f => f.cultivars.some(c => this.baseCultivar(c) === base)).map(f => f.n);
     this.setState({ highlightIds: ids, activeCultivar: base, selectedId: null, lightbox: false });
   }
-  clearHighlight() { this.setState({ highlightIds: [], activeCultivar: null }); this._fit(); }
+  clearHighlight() { this.setState({ highlightIds: [], activeCultivar: null }); this._flyHome(); }
 
   PHOTOS = {
     1:['1.jpg'], 2:['1.jpg'], 3:['1.jpg'], 4:['1.jpg'], 5:['1.jpg'], 6:['1.jpg'], 7:['1.jpg'],
@@ -449,37 +495,10 @@ class Component extends DCLogic {
     { value: 'Minimal', label: 'Minimal' }
   ];
 
-  curBasemap() { return this.state.basemap ?? (this.props.basemap || 'Terrain'); }
+  curBasemap() { return this.state.basemap ?? (this.props.basemap || 'Satellite'); }
 
   componentDidMount() { this._initMap(); }
-  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._iframeT); clearTimeout(this._iframeCheckT); if (this._ro) this._ro.disconnect(); if (this.map) { this.map.remove(); this.map = null; } }
-
-  openModal(name, href, kicker) {
-    clearTimeout(this._iframeT);
-    this.setState({ cultivarModal: { name, href, kicker }, iframeStatus: 'loading' });
-    this._iframeT = setTimeout(() => {
-      this.setState(s => s.iframeStatus === 'loading' ? { iframeStatus: 'blocked' } : null);
-    }, 14000);
-  }
-
-  iframeOnLoad(e) {
-    clearTimeout(this._iframeT);
-    const f = e.target;
-    // Delay check by 2s — JS-rendered pages need time to populate the body
-    // before we can tell if the frame is empty or loaded.
-    this._iframeCheckT = setTimeout(() => {
-      let blocked = false;
-      try {
-        const doc = f.contentDocument;
-        // accessible + empty body → X-Frame blocked (browser renders empty page)
-        if (!doc || !doc.body || doc.body.children.length === 0) blocked = true;
-      } catch (ex) {
-        // SecurityError = cross-origin page loaded successfully
-        blocked = false;
-      }
-      this.setState({ iframeStatus: blocked ? 'blocked' : 'loaded' });
-    }, 2000);
-  }
+  componentWillUnmount() { clearTimeout(this._t); if (this._ro) this._ro.disconnect(); if (this.map) { this.map.remove(); this.map = null; } }
 
   _initMap() {
     const L = window.L;
@@ -569,24 +588,20 @@ class Component extends DCLogic {
       this.fields().forEach(f => { const a = activeSet.has(f.n), was = prev.has(f.n); if (a !== was && this.markers[f.n]) this.markers[f.n].setIcon(this._icon(a)); });
       this._activeKey = key; this._activeKeySet = activeSet;
     }
-    // Zoom: into the selected field; back out to the full map when it closes.
-    if (this._renderedSel !== sel) {
-      this._renderedSel = sel;
+    // Unified zoom: one decision covers sel + hi so nothing double-fires.
+    const hiKey = hi.slice().sort((a, b) => a - b).join(',');
+    const selChanged = this._renderedSel !== sel;
+    const hiChanged = this._renderedHi !== hiKey;
+    if (selChanged || hiChanged) {
+      this._renderedSel = sel; this._renderedHi = hiKey;
+      const L = window.L;
       if (sel) {
         const f = this.fields().find(x => x.n === sel);
         if (f) this.map.flyTo([f.lat, f.lng], Math.min(18, this.map.getMaxZoom()), { duration: 0.6 });
-      } else if (!hi.length) {
-        this._flyHome();
-      }
-    }
-    const hiKey = hi.slice().sort((a, b) => a - b).join(',');
-    if (this._renderedHi !== hiKey) {
-      this._renderedHi = hiKey;
-      if (hi.length > 1) {
-        const L = window.L;
-        const pts = hi.map(id => { const f = this.fields().find(x => x.n === id); return f ? [f.lat, f.lng] : null; }).filter(Boolean);
-        if (pts.length) this.map.flyToBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 16, duration: 0.5 });
-      } else if (!hi.length && !sel) {
+      } else if (hi.length >= 1) {
+        clearTimeout(this._boundsT);
+        this._boundsT = setTimeout(() => { this.map.invalidateSize(); this._flyHome(); }, 120);
+      } else {
         this._flyHome();
       }
     }
@@ -657,18 +672,20 @@ class Component extends DCLogic {
     const sizeItems = all.slice().sort((a, b) => this.num(b.size) - this.num(a.size)).map((f, i) => ({ key: f.n, label: f.en, jp: f.jp, value: this.num(f.size), color: this.hueColor(i) }));
     const totalSize = sizeItems.reduce((a, b) => a + b.value, 0);
     const setHF = (k) => this.setState({ hoverField: k });
+    const activeSizeKey = s.selectedId || null;
     const sizeChart = R('div', null,
-      this.donut(sizeItems, s.hoverField, { centerTitle: 'Total area', centerValue: totalSize.toLocaleString() + ' m²', centerSub: sizeItems.length + ' fields', onHover: setHF, onClick: it => this.chartSelectField(it.key) }),
-      this.legend(sizeItems, s.hoverField, { cols: '1fr 1fr', fmt: it => (it.value / totalSize * 100).toFixed(1) + '%', onHover: setHF, onClick: it => this.chartSelectField(it.key) }));
+      this.donut(sizeItems, s.hoverField, activeSizeKey, { centerTitle: 'Total area', centerValue: totalSize.toLocaleString() + ' m²', centerSub: sizeItems.length + ' fields', onHover: setHF, onClick: it => this.chartSelectField(it.key) }),
+      this.legend(sizeItems, s.hoverField, activeSizeKey, { cols: '1fr 1fr', fmt: it => (it.value / totalSize * 100).toFixed(1) + '%', onHover: setHF, onClick: it => this.chartSelectField(it.key) }));
 
     const cultItems = this.CULTIVAR_AREAS.map((d, i) => ({ key: d[0], label: d[0], jp: this.CULTIVAR_JP[d[0]] || '', value: d[1], color: this.hueColor(i) }));
     const totalCult = cultItems.reduce((a, b) => a + b.value, 0);
     const setHC = (k) => this.setState({ hoverCultivar: k });
+    const activeCultKey = s.activeCultivar || null;
     const cultivarChart = R('div', null,
-      this.donut(cultItems, s.hoverCultivar, { centerTitle: 'Total area', centerValue: totalCult.toLocaleString() + ' m²', centerSub: cultItems.length + ' cultivars', onHover: setHC, onClick: it => this.chartHighlightCultivar(it.key) }),
-      this.legend(cultItems, s.hoverCultivar, { cols: '1fr 1fr', fmt: it => (it.value / totalCult * 100).toFixed(1) + '%', onHover: setHC, onClick: it => this.chartHighlightCultivar(it.key) }));
+      this.donut(cultItems, s.hoverCultivar, activeCultKey, { centerTitle: 'Total area', centerValue: totalCult.toLocaleString() + ' m²', centerSub: cultItems.length + ' cultivars', onHover: setHC, onClick: it => this.chartHighlightCultivar(it.key) }),
+      this.legend(cultItems, s.hoverCultivar, activeCultKey, { cols: '1fr 1fr', fmt: it => (it.value / totalCult * 100).toFixed(1) + '%', onHover: setHC, onClick: it => this.chartHighlightCultivar(it.key) }));
 
-    const elevChart = this.elevationChart(s.hoverElev, (k) => this.setState({ hoverElev: k }), (f) => this.chartSelectField(f.n));
+    const elevChart = this.elevationChart(s.hoverElev, activeSizeKey, (k) => this.setState({ hoverElev: k }), (f) => this.chartSelectField(f.n));
 
     const hi = s.highlightIds || [];
     let highlightLabel = '';
@@ -680,10 +697,18 @@ class Component extends DCLogic {
     return {
       showList, query: s.query,
       chartsOpen: !!s.chartsOpen,
-      toggleCharts: () => this.setState(st => ({ chartsOpen: !st.chartsOpen })),
+      toggleCharts: () => this.setState(st => ({ chartsOpen: !st.chartsOpen, galleryOpen: false })),
       chartsLabel: s.chartsOpen ? 'Hide charts' : 'Show charts',
       chartsBg: s.chartsOpen ? 'rgba(40,46,32,0.06)' : '#fff',
       closeCharts: () => this.setState({ chartsOpen: false }),
+      galleryOpen: !!s.galleryOpen,
+      toggleGallery: () => this.setState(st => ({ galleryOpen: !st.galleryOpen, chartsOpen: false })),
+      galleryLabel: s.galleryOpen ? 'Hide gallery' : 'Show gallery',
+      galleryBg: s.galleryOpen ? 'rgba(40,46,32,0.06)' : '#fff',
+      closeGallery: () => this.setState({ galleryOpen: false }),
+      galleryQuery: s.galleryQuery || '',
+      setGalleryQuery: (e) => this.setState({ galleryQuery: e.target.value }),
+      galleryGrid: this.buildGalleryGrid(all, s.galleryQuery || '', s.selectedId),
       sizeChart, cultivarChart, elevChart,
       highlightActive: hi.length > 0,
       highlightLabel,
@@ -704,14 +729,7 @@ class Component extends DCLogic {
       lightboxCaption: sel ? sel.en + (sel.photos.length > 1 ? ' · ' + (Math.min((s.activePhoto || 0) + 1, sel.photos.length)) + ' / ' + sel.photos.length : '') : '',
       lbMulti: !!(sel && sel.photos.length > 1),
       closeLightbox: () => this.setState({ lightbox: false }),
-      cultivarModalOpen: !!s.cultivarModal,
-      cultivarModalName: s.cultivarModal ? s.cultivarModal.name : '',
-      cultivarModalKicker: s.cultivarModal ? s.cultivarModal.kicker : '',
-      cultivarModalUrl: s.cultivarModal ? s.cultivarModal.href : 'about:blank',
-      closeCultivarModal: () => { clearTimeout(this._iframeT); clearTimeout(this._iframeCheckT); this.setState({ cultivarModal: null, iframeStatus: 'idle' }); },
-      iframeOnLoad: (e) => this.iframeOnLoad(e),
-      iframeLoading: s.iframeStatus === 'loading',
-      iframeBlocked: s.iframeStatus === 'blocked',
+
       stop: (e) => e.stopPropagation(),
       lbPrevStop: (e) => { e.stopPropagation(); if (!sel) return; const L = sel.photos.length; this.setState(st => ({ activePhoto: ((st.activePhoto || 0) - 1 + L) % L })); },
       lbNextStop: (e) => { e.stopPropagation(); if (!sel) return; const L = sel.photos.length; this.setState(st => ({ activePhoto: ((st.activePhoto || 0) + 1) % L })); },
@@ -721,8 +739,8 @@ class Component extends DCLogic {
         numText: 'No. ' + String(sel.n).padStart(2, '0'),
         elevText: sel.emin + ' – ' + sel.emax + ' m',
         sizeText: sel.size + ' m²',
-        cultivars: [...new Set(sel.cultivars.map(c => this.baseCultivar(c)))].map(name => { const href = this.cultivarHref(name) || 'https://www.myjapanesegreentea.com/japanese-tea-cultivars'; return { name, href, onClick: (e) => { e.preventDefault(); this.openModal(name, href, 'Cultivar'); } }; }),
-        teas: sel.teas.map(name => { const plain = !!this.NO_TEA[name]; const href = this.teaHref(name); return { name, plain, hasLink: !plain, href, onClick: (e) => { e.preventDefault(); this.openModal(name, href, 'Obubu Shop'); } }; }), hasTeas: sel.teas.length > 0,
+        cultivars: [...new Set(sel.cultivars.map(c => this.baseCultivar(c)))].map(name => { const href = this.cultivarHref(name) || 'https://www.myjapanesegreentea.com/japanese-tea-cultivars'; return { name, href }; }),
+        teas: sel.teas.map(name => { const plain = !!this.NO_TEA[name]; const href = this.teaHref(name); return { name, plain, hasLink: !plain, href }; }), hasTeas: sel.teas.length > 0,
         gmaps: sel.gmaps, placeholderPath: 'photos/' + sel.slug + '/'
       } : null
     };
