@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=Zen+Kaku+Gothic+New:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:rgba(40,46,32,0.18);border-radius:6px;border:3px solid transparent;background-clip:padding-box;}
+  @keyframes obPanel{from{transform:translateX(22px);}to{transform:translateX(0);}}
+  @keyframes obSpin{to{transform:rotate(360deg);}}
+  @keyframes obList{from{width:0;opacity:0;}to{width:274px;opacity:1;}}
+  .leaflet-container{font-family:'Hanken Grotesk',system-ui,sans-serif;background:#dfe3d6;}
+  .ob-pin{background:transparent;border:none;}
+  .ob-pin>div{transition:width .12s, height .12s;}
+  .leaflet-tooltip.ob-tip{background:#26261f;color:#fbfaf5;border:none;box-shadow:0 2px 8px rgba(0,0,0,0.25);font-weight:500;font-size:12px;padding:4px 9px;border-radius:3px;}
+  .leaflet-tooltip.ob-tip.leaflet-tooltip-top::before{border-top-color:#26261f;}
+  .leaflet-bar a{color:#33332b;}
+  .leaflet-control-attribution{font-size:10px;background:rgba(251,250,245,0.82);}
+</style>
+</helmet>
+<div data-screen-label="Wazuka Tea Fields Map" style="height:100vh;display:flex;flex-direction:column;font-family:'Hanken Grotesk',system-ui,sans-serif;color:#1c1c1a;background:#f4f3ec;overflow:hidden;">
+
+  <header style="flex: none; display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid rgba(40,46,32,0.12); background: #fbfaf5; z-index: 50; position: relative">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:1px;margin-right:6px;">
+        <h1 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.01em;color:#1c1c1a;">Tea Fields of Obubu Tea Farms</h1>
+        <span style="font-size:11.5px;color:#a6a699;letter-spacing:0.04em;">An Interactive Map by Kenji (Intern #218)</span>
+      </div>
+      <button onClick="{{ toggleList }}" aria-label="{{ toggleLabel }}" title="{{ toggleLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ toggleBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
+        <span style="display:flex;flex-direction:column;gap:2.5px;">
+          <span style="width:15px;height:2px;background:#33332b;border-radius:2px;"></span>
+          <span style="width:15px;height:2px;background:#33332b;border-radius:2px;"></span>
+          <span style="width:15px;height:2px;background:#33332b;border-radius:2px;"></span>
+        </span>
+        Fields
+      </button>
+      <button onClick="{{ toggleCharts }}" aria-label="{{ chartsLabel }}" title="{{ chartsLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ chartsBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
+        <span style="display:flex;align-items:flex-end;gap:2px;height:13px;">
+          <span style="width:3px;height:6px;background:#33332b;border-radius:1px;"></span>
+          <span style="width:3px;height:13px;background:#33332b;border-radius:1px;"></span>
+          <span style="width:3px;height:9px;background:#33332b;border-radius:1px;"></span>
+        </span>
+        Charts
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <span style="font-size:12.5px;color:#8a8a7e;">Click any pin for field details</span>
+      <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#8a8a7e;">
+        <span style="white-space:nowrap;">Map style</span>
+        <select value="{{ basemap }}" onChange="{{ setBasemap }}" style="height:34px;padding:0 30px 0 11px;font-size:12.5px;font-family:inherit;font-weight:500;color:#33332b;border:1px solid rgba(40,46,32,0.2);border-radius:5px;background:#fff url('data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22&gt;&lt;path d=%22M1 1l4 4 4-4%22 fill=%22none%22 stroke=%22%2333332b%22 stroke-width=%221.4%22/&gt;&lt;/svg&gt;') no-repeat right 11px center;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;">
+          <sc-for list="{{ basemapOptions }}" as="o" hint-placeholder-count="5">
+            <option value="{{ o.value }}">{{ o.label }}</option>
+          </sc-for>
+        </select>
+      </label>
+    </div>
+  </header>
+
+  <div style="flex:1;display:flex;min-height:0;position:relative;">
+
+    <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
+      <aside style="flex:none;width:274px;border-right:1px solid rgba(40,46,32,0.12);display:flex;flex-direction:column;background:#fbfaf5;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 10px 11px 16px;border-bottom:1px solid rgba(40,46,32,0.08);">
+          <span style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">All fields</span>
+          <button onClick="{{ toggleList }}" aria-label="Hide field list" title="Hide field list" style="border:none;background:none;cursor:pointer;color:#8a8a80;padding:4px 8px;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;" style-hover="color:#33332b;">Hide&nbsp;‹</button>
+        </div>
+        <div style="padding:13px 14px;border-bottom:1px solid rgba(40,46,32,0.08);">
+          <input value="{{ query }}" onChange="{{ setQuery }}" placeholder="Search fields, cultivars, teas…" style="width:100%;padding:9px 11px;font-size:13px;font-family:inherit;border:1px solid rgba(40,46,32,0.18);border-radius:3px;background:#fff;color:#1c1c1a;outline:none;">
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:4px 0;">
+          <sc-for list="{{ listItems }}" as="it" hint-placeholder-count="12">
+            <div style="{{ it.style }}" onClick="{{ it.onClick }}" onMouseEnter="{{ it.onEnter }}" onMouseLeave="{{ it.onLeave }}">
+              <span style="{{ it.dotStyle }}"></span>
+              <span style="font-size:13.5px;font-weight:500;color:#26261f;">{{ it.en }}</span>
+              <span style="font-family:'Zen Kaku Gothic New',sans-serif;font-size:12px;color:#a6a699;margin-left:auto;">{{ it.jp }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </aside>
+    </sc-if>
+
+    <sc-if value="{{ chartsOpen }}" hint-placeholder-val="{{ false }}">
+      <aside data-screen-label="Charts" style="flex:none;width:436px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.08);">
+          <div>
+            <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">Field insights</div>
+            <div style="font-size:15px;font-weight:600;color:#26261f;margin-top:1px;">Charts</div>
+          </div>
+          <button onClick="{{ closeCharts }}" aria-label="Hide charts" title="Hide charts" style="border:none;background:none;cursor:pointer;color:#8a8a80;padding:4px 8px;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;" style-hover="color:#33332b;">Hide&nbsp;‹</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:22px 20px 36px;">
+          <section>
+            <h3 style="margin:0;font-size:14.5px;font-weight:600;color:#26261f;">Field size</h3>
+            <p style="margin:4px 0 0;font-size:12px;color:#8a8a7e;line-height:1.45;">Each field's share of total cultivated area. Hover a slice for details and click to locate it on the map.</p>
+            <div>{{ sizeChart }}</div>
+          </section>
+          <div style="height:1px;background:rgba(40,46,32,0.1);margin:28px 0;"></div>
+          <section>
+            <h3 style="margin:0;font-size:14.5px;font-weight:600;color:#26261f;">Cultivar area</h3>
+            <p style="margin:4px 0 0;font-size:12px;color:#8a8a7e;line-height:1.45;">Total field area by cultivar. Click a slice to highlight the fields growing it.</p>
+            <div>{{ cultivarChart }}</div>
+          </section>
+          <div style="height:1px;background:rgba(40,46,32,0.1);margin:28px 0;"></div>
+          <section>
+            <h3 style="margin:0;font-size:14.5px;font-weight:600;color:#26261f;">Elevation range</h3>
+            <p style="margin:4px 0 14px;font-size:12px;color:#8a8a7e;line-height:1.45;">Min–max elevation of each field (metres), sorted highest first. Click a row to locate it.</p>
+            <div>{{ elevChart }}</div>
+          </section>
+          <div style="margin-top:32px;padding-top:16px;border-top:1px solid rgba(40,46,32,0.08);">
+            <p style="margin:0;font-size:11px;color:#b5b5a8;line-height:1.6;font-style:italic;">Field boundaries and area figures are approximate, derived from satellite imagery measurements in Google Earth. Elevation ranges are based on terrain data and may vary slightly from ground-level readings.</p>
+          </div>
+        </div>
+      </aside>
+    </sc-if>
+
+    <main style="flex:1;position:relative;min-width:0;background:#dfe3d6;">
+      <div id="obmap" style="position:absolute;inset:0;z-index:0;"></div>
+      <sc-if value="{{ highlightActive }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;background:#26261f;color:#fbfaf5;border-radius:999px;padding:7px 7px 7px 17px;display:flex;align-items:center;gap:13px;box-shadow:0 4px 18px rgba(0,0,0,0.32);font-size:13px;white-space:nowrap;">
+          <span style="display:flex;align-items:center;gap:8px;"><span style="width:9px;height:9px;border-radius:50%;background:#a3c585;"></span>Highlighting {{ highlightLabel }}</span>
+          <button onClick="{{ clearHighlight }}" style="border:none;background:rgba(255,255,255,0.16);color:#fbfaf5;cursor:pointer;font-size:12px;font-family:inherit;padding:5px 12px;border-radius:999px;" style-hover="background:rgba(255,255,255,0.28);">Clear ×</button>
+        </div>
+      </sc-if>
+    </main>
+
+    <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ false }}">
+      <aside data-screen-label="Field detail" style="flex:none;width:394px;background:#fbfaf5;border-left:1px solid rgba(40,46,32,0.14);box-shadow:-10px 0 34px rgba(20,24,14,0.10);z-index:1200;display:flex;flex-direction:column;animation:obPanel .28s cubic-bezier(.2,.7,.2,1);">
+        <div style="display:flex;justify-content:flex-end;padding:12px 14px 0;">
+          <button onClick="{{ closePanel }}" aria-label="Close" style="border:none;background:none;cursor:pointer;font-size:22px;line-height:1;color:#8a8a80;padding:4px 8px;">×</button>
+        </div>
+        <div style="flex:1;overflow-y:auto;padding:2px 28px 32px;">
+          <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">{{ selected.numText }}</div>
+          <h2 style="margin:5px 0 2px;font-size:27px;font-weight:600;letter-spacing:-0.01em;color:#1c1c1a;">{{ selected.en }}</h2>
+          <div style="font-family:'Zen Kaku Gothic New',sans-serif;font-size:16px;color:#7b7b71;margin-bottom:15px;">{{ selected.jp }}</div>
+
+          <sc-if value="{{ selected.natural }}" hint-placeholder-val="{{ true }}">
+            <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(93,113,80,0.12);color:#3f4d36;font-size:12px;font-weight:600;padding:5px 11px;border-radius:999px;margin-bottom:18px;"><span style="width:8px;height:8px;border-radius:50%;background:#5d7150;"></span>Natural · No fertilizer, no pesticides</div>
+          </sc-if>
+
+
+          <div>{{ gallery }}</div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0 4px;">
+            <div>
+              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#a6a699;font-weight:600;margin-bottom:4px;">Elevation</div>
+              <div style="font-size:15px;color:#26261f;">{{ selected.elevText }}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#a6a699;font-weight:600;margin-bottom:4px;">Field size</div>
+              <div style="font-size:15px;color:#26261f;">{{ selected.sizeText }}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:22px;">
+            <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#a6a699;font-weight:600;margin-bottom:9px;">Cultivars</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              <sc-for list="{{ selected.cultivars }}" as="c" hint-placeholder-count="2">
+                <a href="{{ c.href }}" onClick="{{ c.onClick }}" rel="noopener" title="View {{ c.name }} cultivar info" style="font-size:12.5px;color:#3f4d36;background:rgba(93,113,80,0.10);border:1px solid rgba(93,113,80,0.22);padding:4px 10px;border-radius:999px;text-decoration:none;cursor:pointer;display:inline-flex;align-items:center;gap:5px;" style-hover="background:rgba(93,113,80,0.2);border-color:rgba(93,113,80,0.45);">{{ c.name }}<span style="opacity:0.5;font-size:10px;">↗</span></a>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="margin-top:22px;">
+            <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#a6a699;font-weight:600;margin-bottom:9px;">Produced teas · 2026</div>
+            <sc-if value="{{ selected.hasTeas }}" hint-placeholder-val="{{ true }}">
+              <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;">
+                <sc-for list="{{ selected.teas }}" as="t" hint-placeholder-count="2">
+                  <li style="font-size:14px;color:#33332b;display:flex;gap:9px;align-items:baseline;"><span style="width:5px;height:5px;border-radius:50%;background:#5d7150;flex:none;transform:translateY(-2px);"></span><sc-if value="{{ t.hasLink }}" hint-placeholder-val="{{ true }}"><a href="{{ t.href }}" onClick="{{ t.onClick }}" rel="noopener" title="Shop {{ t.name }} at Obubu" style="color:#33332b;text-decoration:none;border-bottom:1px solid rgba(93,113,80,0.45);cursor:pointer;display:inline-flex;align-items:baseline;gap:5px;" style-hover="color:#5d7150;border-color:#5d7150;">{{ t.name }}<span style="opacity:0.5;font-size:10px;">↗</span></a></sc-if><sc-if value="{{ t.plain }}" hint-placeholder-val="{{ false }}"><span>{{ t.name }}</span></sc-if></li>
+                </sc-for>
+              </ul>
+            </sc-if>
+            <sc-if value="{{ noTeas }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:14px;color:#9a9a8f;">Not yet assigned</div>
+            </sc-if>
+          </div>
+
+          <a href="{{ selected.gmaps }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:26px;font-size:13px;color:#5d7150;text-decoration:none;border-bottom:1px solid rgba(93,113,80,0.4);padding-bottom:1px;">View location on Google Maps ↗</a>
+        </div>
+      </aside>
+    </sc-if>
+
+    <sc-if value="{{ cultivarModalOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeCultivarModal }}" style="position:fixed;inset:0;background:rgba(18,20,14,0.82);z-index:5000;display:flex;align-items:center;justify-content:center;padding:40px;">
+        <div onClick="{{ stop }}" style="width:min(1080px,90vw);height:86vh;background:#fbfaf5;border-radius:8px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 70px rgba(0,0,0,0.5);">
+          <div style="flex:none;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 16px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.12);background:#fff;">
+            <div style="display:flex;align-items:baseline;gap:10px;min-width:0;">
+              <span style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;flex:none;">{{ cultivarModalKicker }}</span>
+              <span style="font-size:16px;font-weight:600;color:#26261f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ cultivarModalName }}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex:none;">
+              <a href="{{ cultivarModalUrl }}" target="_blank" rel="noopener" style="font-size:12.5px;color:#5d7150;text-decoration:none;padding:7px 12px;border:1px solid rgba(93,113,80,0.3);border-radius:6px;display:inline-flex;align-items:center;gap:5px;" style-hover="background:rgba(93,113,80,0.08);">Open in new tab ↗</a>
+              <button onClick="{{ closeCultivarModal }}" aria-label="Close" style="width:34px;height:34px;border-radius:6px;border:1px solid rgba(40,46,32,0.16);background:#fff;color:#5b5b52;font-size:20px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:rgba(40,46,32,0.06);">×</button>
+            </div>
+          </div>
+          <div style="flex:1;position:relative;background:#eef0e8;">
+            <iframe src="{{ cultivarModalUrl }}" onLoad="{{ iframeOnLoad }}" title="{{ cultivarModalName }}" style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>
+            <sc-if value="{{ iframeLoading }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;z-index:2;background:#eef0e8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+                <div style="width:36px;height:36px;border-radius:50%;border:3px solid rgba(93,113,80,0.2);border-top-color:#5d7150;animation:obSpin 0.8s linear infinite;"></div>
+                <div style="font-size:13px;color:#8a8a7e;">Loading…</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ iframeBlocked }}" hint-placeholder-val="{{ false }}">
+              <div style="position:absolute;inset:0;z-index:3;background:#f4f3ec;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:48px;">
+                <div style="width:52px;height:52px;border-radius:50%;background:rgba(40,46,32,0.08);display:flex;align-items:center;justify-content:center;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a8a7e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
+                <div style="font-size:16px;font-weight:600;color:#26261f;">Unable to load page in window</div>
+                <div style="font-size:13px;color:#8a8a7e;max-width:320px;line-height:1.6;">This page cannot be displayed inside the map. Open it in a new tab to view it.</div>
+                <a href="{{ cultivarModalUrl }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;background:#5d7150;color:#fff;font-size:14px;font-weight:500;text-decoration:none;padding:11px 24px;border-radius:6px;font-family:inherit;" style-hover="background:#3f4d36;">Open in new tab ↗</a>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ lightboxOpen }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeLightbox }}" style="position:fixed;inset:0;background:rgba(18,20,14,0.92);z-index:4000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;cursor:zoom-out;">
+        {{ lightboxImg }}
+        <div style="margin-top:16px;color:#f4f3ec;font-size:13px;letter-spacing:0.04em;opacity:0.9;">{{ lightboxCaption }}</div>
+        <button onClick="{{ closeLightbox }}" aria-label="Close" style="position:fixed;top:24px;right:28px;width:42px;height:42px;border-radius:50%;border:none;background:rgba(255,255,255,0.14);color:#fff;font-size:24px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:rgba(255,255,255,0.26);">×</button>
+        <sc-if value="{{ lbMulti }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ lbPrevStop }}" aria-label="Previous" style="position:fixed;left:24px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,0.14);color:#fff;font-size:26px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:rgba(255,255,255,0.26);">‹</button>
+          <button onClick="{{ lbNextStop }}" aria-label="Next" style="position:fixed;right:24px;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;border:none;background:rgba(255,255,255,0.14);color:#fff;font-size:26px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;" style-hover="background:rgba(255,255,255,0.26);">›</button>
+        </sc-if>
+      </div>
+    </sc-if>
+
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;basemap&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Satellite&quot;,&quot;options&quot;:[&quot;Satellite&quot;,&quot;Terrain&quot;,&quot;Elevation&quot;,&quot;Minimal&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;showFieldList&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;highlightNatural&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  RAW = [
+    {n:1,en:'Aoi Mori',jp:'青い森',size:'10,678',emin:369,emax:396,natural:true,lat:34.79791,lng:135.936664,cultivars:['Yabukita','Sayamakaori','Okumidori'],teas:['Natural Sencha','Okumidori Tencha/Matcha','Natural Black Gyokuro','Natural Gyokuro','Natural Oolong Needles','Intern Wakoucha']},
+    {n:2,en:'Erihara',jp:'撰原',size:'1,728',emin:128,emax:139,natural:false,lat:34.781082,lng:135.888519,cultivars:['Yabukita','Zairai'],teas:['Earth Sencha','Kabuse Sencha']},
+    {n:3,en:'Eriyoshi',jp:'エリヨシ（撰原吉田）',size:'2,109',emin:153,emax:177,natural:false,lat:34.787155,lng:135.89449,cultivars:['Okumidori','Okuhikari','Ujimidori','Yamakai'],teas:['Yamakai Sencha','Ujihikari Sencha','Okumidori Tencha/Matcha']},
+    {n:4,en:'Fire Station',jp:'消防団',size:'757',emin:147,emax:154,natural:false,lat:34.782308,lng:135.890133,cultivars:['Saeakari'],teas:['Saeakari Sencha']},
+    {n:5,en:'Ie Mae',jp:'家前',size:'481',emin:128,emax:133,natural:false,lat:34.78347,lng:135.877376,cultivars:['Yabukita'],teas:['Hojicha Gold']},
+    {n:6,en:'Ie Yoko',jp:'家横',size:'76',emin:136,emax:138,natural:false,lat:34.78379,lng:135.877282,cultivars:['Zairai'],teas:['Earth Sencha']},
+    {n:7,en:'Ie Ura',jp:'家裏',size:'400',emin:132,emax:138,natural:false,lat:34.7835,lng:135.876888,cultivars:['Zairai'],teas:['Earth Sencha']},
+    {n:8,en:'Inari',jp:'稲荷',size:'1,269',emin:187,emax:200,natural:true,lat:34.8050136,lng:135.9211304,cultivars:['Zairai'],teas:['Slot 1 Intern Wakoucha']},
+    {n:9,en:'Jinja',jp:'神社',size:'1,240',emin:237,emax:260,natural:false,lat:34.832394,lng:135.95307,cultivars:['Yabukita'],teas:['Spring Blend Tencha/Matcha']},
+    {n:10,en:'Jinja Oku',jp:'神社奥',size:'421',emin:255,emax:257,natural:false,lat:34.827453,lng:135.964907,cultivars:['Yabukita'],teas:['Spring Blend Tencha/Matcha']},
+    {n:11,en:'Kamo',jp:'加茂',size:'1,443',emin:53,emax:57,natural:false,lat:34.7665246,lng:135.8591113,cultivars:['Gokou'],teas:['Gokou Tencha/Matcha']},
+    {n:12,en:'Kawayoko',jp:'川横',size:'161',emin:82,emax:85,natural:false,lat:34.780703,lng:135.877667,cultivars:['Yabukita'],teas:['Heavenly Drop Gyokuro']},
+    {n:13,en:'Koshigoe',jp:'腰越',size:'2,136',emin:459,emax:479,natural:false,lat:34.795645,lng:135.872506,cultivars:['Zairai'],teas:['Wind Sencha']},
+    {n:14,en:'Kouminkan',jp:'公民館',size:'940',emin:114,emax:120,natural:false,lat:34.782537,lng:135.877413,cultivars:['Ujihikari'],teas:['No Harvest']},
+    {n:15,en:'Michi Nashi',jp:'道無',size:'1,026',emin:182,emax:188,natural:false,lat:34.784835,lng:135.874422,cultivars:['Yabukita'],teas:['Hachijyu Hachiya Spring Sun Sencha']},
+    {n:16,en:'Minami Oku',jp:'南奥',size:'309',emin:148,emax:149,natural:false,lat:34.791195,lng:135.90727,cultivars:['Okumidori'],teas:['Okumidori Tencha/Matcha']},
+    {n:17,en:'Minami',jp:'南',size:'681',emin:148,emax:153,natural:false,lat:34.792001,lng:135.905413,cultivars:['Sayamakaori'],teas:['Forest Glow Sencha']},
+    {n:18,en:'Monzen',jp:'門前',size:'2,350',emin:273,emax:320,natural:false,lat:34.801198,lng:135.92785,cultivars:['Sayamakaori','Okumidori','Saemidori'],teas:['Okumidori Tencha/Matcha','Gushing Brook Sencha']},
+    {n:19,en:'Monzen Horisan',jp:'門前奥',size:'1,784',emin:235,emax:242,natural:false,lat:34.8036596,lng:135.9240262,cultivars:['Yabukita'],teas:['Spring Blend Tencha/Matcha']},
+    {n:20,en:'Monzen Hori Ie Ue',jp:'門前堀家上',size:'715',emin:168,emax:173,natural:false,lat:34.8051928,lng:135.919156,cultivars:['Yabukita'],teas:['Competition Sencha']},
+    {n:21,en:'Monzen Sugimoto',jp:'門前杉本',size:'1,220',emin:162,emax:175,natural:false,lat:34.8047733,lng:135.9196589,cultivars:['Yabukita'],teas:[]},
+    {n:22,en:'Obubu Office Field',jp:'おぶぶオフィス前',size:'402',emin:150,emax:153,natural:true,lat:34.8070642,lng:135.9130784,cultivars:['Zairai (Yabukita Seeds)'],teas:['Handroll Event Kamairicha']},
+    {n:23,en:'Pet',jp:'ペット',size:'672',emin:110,emax:117,natural:false,lat:34.78353,lng:135.879623,cultivars:['Samidori'],teas:['Samidori Sencha']},
+    {n:24,en:'Prison',jp:'プリズン',size:'545',emin:58,emax:59,natural:false,lat:34.7747263,lng:135.8822289,cultivars:['Okumidori'],teas:['Okumidori Tencha/Matcha']},
+    {n:25,en:'Shimojima',jp:'下島',size:'1,017',emin:82,emax:100,natural:false,lat:34.780163,lng:135.881876,cultivars:['Zairai','Yabukita'],teas:['Earth Sencha','Spring Blend Tencha/Matcha']},
+    {n:26,en:'Somada',jp:'杣田',size:'4,002',emin:248,emax:274,natural:false,lat:34.788102,lng:135.913066,cultivars:['Yabukita'],teas:['Spring Blend Tencha/Matcha']},
+    {n:27,en:'Tenku',jp:'天空',size:'3,377',emin:416,emax:442,natural:false,lat:34.791104,lng:135.870918,cultivars:['Zairai','Yabukita','Zairai (Yabukita Seeds)'],teas:['Spring Sun Sencha','Kabuse Sencha']},
+    {n:28,en:'New Field',jp:'新茶畑（無名）',size:'858',emin:77,emax:86,natural:false,lat:34.777639,lng:135.8785,cultivars:['Yabukita'],teas:['No Harvest']}
+  ];
+
+  state = { selectedId: null, hoveredId: null, query: '', imgStatus: {}, activePhoto: 0, chartsOpen: false, highlightIds: [], activeCultivar: null, hoverField: null, hoverCultivar: null, hoverElev: null, iframeStatus: 'idle' };
+
+  CULTIVAR_AREAS = [
+    ['Yabukita', 23897], ['Zairai', 7238], ['Okumidori', 4233], ['Gokou', 1443],
+    ['Sayama Kaori', 1235], ['Ujihikari', 940], ['Ujimidori', 882], ['Saemidori', 780],
+    ['Saeakari', 757], ['Samidori', 672], ['Okuhikari', 605], ['Yamakai', 322]
+  ];
+  CULTIVAR_JP = {
+    'Yabukita': 'やぶきた', 'Zairai': '在来', 'Okumidori': 'おくみどり', 'Gokou': 'ごこう',
+    'Sayama Kaori': 'さやまかおり', 'Ujihikari': '宇治ひかり', 'Ujimidori': '宇治みどり',
+    'Saemidori': 'さえみどり', 'Saeakari': 'さえあかり', 'Samidori': 'さみどり',
+    'Okuhikari': 'おくひかり', 'Yamakai': 'やまかい'
+  };
+
+  CULTIVAR_LINKS = {
+    'Yabukita': 'https://www.myjapanesegreentea.com/yabukita',
+    'Zairai': 'https://www.myjapanesegreentea.com/about-the-zairai-tea-cultivar',
+    'Okumidori': 'https://www.teanursery.com/okumidori/',
+    'Gokou': 'https://www.myjapanesegreentea.com/gokou',
+    'Sayamakaori': 'https://www.myjapanesegreentea.com/sayamakaori',
+    'Ujihikari': 'https://www.myjapanesegreentea.com/the-ujihikari-tea-cultivar',
+    'Ujimidori': 'https://www.teanursery.com/ujimidori/',
+    'Saemidori': 'https://www.myjapanesegreentea.com/the-saemidori-tea-cultivar',
+    'Saeakari': 'https://www.teanursery.com/saeakari/',
+    'Samidori': 'https://www.myjapanesegreentea.com/the-samidori-tea-cultivar',
+    'Okuhikari': 'https://www.myjapanesegreentea.com/okuhikari',
+    'Yamakai': 'https://www.myjapanesegreentea.com/yamakai'
+  };
+
+  cultivarHref(name) {
+    if (this.CULTIVAR_LINKS[name]) return this.CULTIVAR_LINKS[name];
+    const base = name.replace(/\s*\(.*\)\s*/, '').trim();
+    return this.CULTIVAR_LINKS[base] || null;
+  }
+
+  // Produced tea -> Obubu shop product page. Matcha uses the smallest (25g) size.
+  // Items not sold as a dedicated product fall back to an Obubu shop search.
+  TEA_LINKS = {
+    'Okumidori Tencha/Matcha': 'https://obubutea.com/shop/green-tea/matcha/okumidori-matcha-25g-tin/',
+    'Spring Blend Tencha/Matcha': 'https://obubutea.com/shop/green-tea/matcha/spring-blend-matcha-25g/',
+    'Gokou Tencha/Matcha': 'https://obubutea.com/shop/green-tea/matcha/gokou-matcha-25g-tin/',
+    'Kabuse Sencha': 'https://obubutea.com/shop/green-tea/sencha/kabuse-sencha/',
+    'Earth Sencha': 'https://obubutea.com/shop/sencha/sencha-of-the-earth/',
+    'Wind Sencha': 'https://obubutea.com/shop/green-tea/sencha/sencha-of-the-wind-80g/',
+    'Spring Sun Sencha': 'https://obubutea.com/shop/green-tea/sencha/sencha-of-the-spring-sun/',
+    'Forest Glow Sencha': 'https://obubutea.com/shop/green-tea/sencha/sencha-of-the-forest-glow-80g/',
+    'Hachijyu Hachiya Spring Sun Sencha': 'https://obubutea.com/shop/green-tea/sencha/sencha-of-the-spring-sun/',
+    'Heavenly Drop Gyokuro': 'https://obubutea.com/shop/green-tea/sencha/heavenly-drop-gyokuro/',
+    'Natural Gyokuro': 'https://obubutea.com/shop/green-tea/sencha/natural-gyokuro/',
+    'Natural Black Gyokuro': 'https://obubutea.com/shop/green-tea/gyokuro/natural-black-gyokuro/',
+    'Natural Oolong Needles': 'https://obubutea.com/shop/all/natural-oolong-needles/',
+    'Natural Sencha': 'https://obubutea.com/?s=Natural%20Sencha&post_type=product',
+    'Hojicha Gold': 'https://obubutea.com/?s=Hojicha%20Gold&post_type=product',
+    'Gushing Brook Sencha': 'https://obubutea.com/?s=Saemidori%20Sencha&post_type=product'
+  };
+  NO_TEA = { 'No Harvest': 1, 'Intern Wakoucha': 1, 'Slot 1 Intern Wakoucha': 1, 'Yamakai Sencha': 1, 'Ujihikari Sencha': 1, 'Saeakari Sencha': 1, 'Competition Sencha': 1, 'Handroll Event Kamairicha': 1, 'Samidori Sencha': 1 };
+
+  teaHref(name) {
+    if (this.TEA_LINKS[name]) return this.TEA_LINKS[name];
+    const cleaned = name
+      .replace(/Tencha\/Matcha/ig, 'Matcha')
+      .replace(/\bSlot\s*\d+\b/ig, '')
+      .replace(/\bIntern\b|\bCompetition\b|\bHandroll Event\b|\bHachijyu Hachiya\b/ig, '')
+      .replace(/\s+/g, ' ').trim();
+    return 'https://obubutea.com/?s=' + encodeURIComponent(cleaned) + '&post_type=product';
+  }
+
+  num(v) { return parseInt(String(v).replace(/[^0-9]/g, ''), 10) || 0; }
+  baseCultivar(name) { return name.replace(/\s*\(.*\)\s*/, '').trim(); }
+  hueColor(i) { const h = (i * 137.508 + 18) % 360; const s = 43 + (i % 3) * 6; const l = 55 + (i % 4) * 4; return 'hsl(' + h.toFixed(0) + ',' + s + '%,' + l + '%)'; }
+
+  donut(items, hoverKey, opts) {
+    const R = React.createElement;
+    const size = 220, sw = 38, r = (size - sw) / 2 - 2, cx = size / 2, cy = size / 2, C = 2 * Math.PI * r;
+    const total = items.reduce((a, b) => a + b.value, 0) || 1;
+    let acc = 0;
+    const arcs = items.map((it, i) => {
+      const frac = it.value / total, len = frac * C, off = -acc * C; acc += frac;
+      const isH = hoverKey != null && String(it.key) === String(hoverKey);
+      return R('circle', { key: i, cx, cy, r, fill: 'none', stroke: it.color, strokeWidth: isH ? sw + 7 : sw, strokeDasharray: len + ' ' + (C - len), strokeDashoffset: off, transform: 'rotate(-90 ' + cx + ' ' + cy + ')', style: { cursor: 'pointer', transition: 'stroke-width .12s, opacity .12s', opacity: (hoverKey != null && !isH) ? 0.38 : 1 }, onMouseEnter: () => opts.onHover(it.key), onMouseLeave: () => opts.onHover(null), onClick: () => opts.onClick(it) });
+    });
+    const svg = R('svg', { width: size, height: size, viewBox: '0 0 ' + size + ' ' + size, style: { display: 'block' } }, arcs);
+    const hv = hoverKey != null ? items.find(it => String(it.key) === String(hoverKey)) : null;
+    let center;
+    if (hv) {
+      const pct = hv.value / total * 100;
+      center = [
+        R('div', { key: 'l', style: { fontSize: '15px', fontWeight: 600, color: '#26261f', lineHeight: 1.2 } }, hv.label),
+        hv.jp ? R('div', { key: 'j', style: { fontFamily: "'Zen Kaku Gothic New',sans-serif", fontSize: '12px', color: '#a6a699', marginTop: '1px' } }, hv.jp) : null,
+        R('div', { key: 'v', style: { fontSize: '13px', color: this.PRIMARY, fontWeight: 600, marginTop: '7px' } }, hv.value.toLocaleString() + ' m²'),
+        R('div', { key: 'p', style: { fontSize: '12px', color: '#8a8a7e' } }, pct.toFixed(1) + '%')
+      ];
+    } else {
+      center = [
+        R('div', { key: 't', style: { fontSize: '10.5px', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#a6a699', fontWeight: 600 } }, opts.centerTitle),
+        R('div', { key: 'v', style: { fontSize: '18px', fontWeight: 600, color: '#26261f', marginTop: '3px' } }, opts.centerValue),
+        opts.centerSub ? R('div', { key: 's', style: { fontSize: '12px', color: '#8a8a7e', marginTop: '1px' } }, opts.centerSub) : null
+      ];
+    }
+    const centerDiv = R('div', { style: { position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', pointerEvents: 'none', padding: '0 34px' } }, center);
+    return R('div', { style: { position: 'relative', width: size + 'px', height: size + 'px', margin: '4px auto 0' }, 'data-om-raster': '1' }, svg, centerDiv);
+  }
+
+  legend(items, hoverKey, opts) {
+    const R = React.createElement;
+    return R('div', { style: { display: 'grid', gridTemplateColumns: opts.cols || '1fr 1fr', gap: '2px 14px', marginTop: '16px' } },
+      items.map((it, i) => R('div', { key: i, onMouseEnter: () => opts.onHover(it.key), onMouseLeave: () => opts.onHover(null), onClick: () => opts.onClick(it), style: { display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer', padding: '2px 4px', borderRadius: '3px', background: (hoverKey != null && String(it.key) === String(hoverKey)) ? 'rgba(93,113,80,0.12)' : 'transparent' } },
+        R('span', { style: { width: '9px', height: '9px', borderRadius: '2px', flex: 'none', background: it.color } }),
+        R('span', { style: { fontSize: '12px', color: '#33332b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' } }, it.label),
+        R('span', { style: { fontSize: '11px', color: '#a6a699', marginLeft: 'auto', flex: 'none' } }, opts.fmt ? opts.fmt(it) : ''))));
+  }
+
+  elevationChart(hoverKey, onHover, onClick) {
+    const R = React.createElement;
+    const fs = this.fields().slice().sort((a, b) => b.emax - a.emax);
+    const MAX = 500, ticks = [0, 100, 200, 300, 400, 500];
+    const scale = R('div', { key: 'sc', style: { display: 'flex', marginBottom: '7px' } },
+      R('div', { style: { width: '96px', flex: 'none' } }),
+      R('div', { style: { position: 'relative', flex: 1, height: '11px' } }, ticks.map((t, i) => R('div', { key: i, style: { position: 'absolute', left: (t / MAX * 100) + '%', transform: 'translateX(-50%)', fontSize: '9px', color: '#b5b5a8' } }, t))),
+      R('div', { style: { width: '58px', flex: 'none' } }));
+    const rows = fs.map(f => {
+      const isH = hoverKey != null && String(f.n) === String(hoverKey);
+      const left = f.emin / MAX * 100, w = Math.max((f.emax - f.emin) / MAX * 100, 0.8);
+      return R('div', { key: f.n, onMouseEnter: () => onHover(f.n), onMouseLeave: () => onHover(null), onClick: () => onClick(f), style: { display: 'flex', alignItems: 'center', cursor: 'pointer', padding: '2.5px 0', borderRadius: '3px', background: isH ? 'rgba(93,113,80,0.1)' : 'transparent' } },
+        R('span', { style: { width: '96px', flex: 'none', fontSize: '11px', color: '#33332b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', paddingRight: '6px' } }, f.en),
+        R('div', { style: { position: 'relative', flex: 1, height: '12px' } },
+          R('div', { style: { position: 'absolute', top: '5px', height: '2px', left: 0, right: 0, background: 'rgba(40,46,32,0.07)' } }),
+          R('div', { style: { position: 'absolute', top: '3px', height: '6px', left: left + '%', width: w + '%', background: isH ? this.PRIMARY_DARK : this.PRIMARY, borderRadius: '999px', transition: 'background .12s' } })),
+        R('span', { style: { width: '58px', flex: 'none', textAlign: 'right', fontSize: '10.5px', color: '#8a8a7e', fontVariantNumeric: 'tabular-nums' } }, f.emin + '–' + f.emax));
+    });
+    return R('div', { 'data-om-raster': '1' }, scale, R('div', { style: { display: 'flex', flexDirection: 'column', gap: '1px' } }, rows));
+  }
+
+  chartSelectField(id) { this.setState({ selectedId: id, activePhoto: 0, lightbox: false, highlightIds: [id], activeCultivar: null }); }
+  chartHighlightCultivar(name) {
+    const base = this.baseCultivar(name);
+    const ids = this.fields().filter(f => f.cultivars.some(c => this.baseCultivar(c) === base)).map(f => f.n);
+    this.setState({ highlightIds: ids, activeCultivar: base, selectedId: null, lightbox: false });
+  }
+  clearHighlight() { this.setState({ highlightIds: [], activeCultivar: null }); this._fit(); }
+
+  PHOTOS = {
+    1:['1.jpg'], 2:['1.jpg'], 3:['1.jpg'], 4:['1.jpg'], 5:['1.jpg'], 6:['1.jpg'], 7:['1.jpg'],
+    8:['1.jpg','2.jpg','3.jpg'], 9:['1.jpg'], 10:['1.jpg'], 11:['1.jpg'], 12:['1.jpg'], 13:['1.jpg'],
+    14:['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg'], 15:['1.jpg','2.jpg'], 16:['1.jpg'], 17:['1.jpg'],
+    18:['1.jpg'], 19:['1.jpg'], 20:['1.jpg'], 21:['1.jpg'], 22:['1.jpg'], 23:['1.jpg','2.jpg'],
+    24:['1.jpg'], 25:['1.jpg'], 26:['1.jpg'], 27:['1.jpg','2.jpg','3.jpg','4.jpg'], 28:['1.jpg']
+  };
+
+  fields() {
+    if (this._fields) return this._fields;
+    this._fields = this.RAW.map(r => {
+      const slug = String(r.n).padStart(2, '0') + '-' + r.en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const photos = (this.PHOTOS[r.n] || []).map(fn => 'photos/' + slug + '/' + fn);
+      return Object.assign({}, r, { slug, photos, gmaps: 'https://www.google.com/maps/search/?api=1&query=' + r.lat + ',' + r.lng });
+    });
+    return this._fields;
+  }
+
+  TILES = {
+    Terrain: { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', attr: 'Tiles &copy; Esri', max: 19 },
+    Elevation: { url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', attr: '&copy; OpenTopoMap (CC-BY-SA)', max: 17, sub: 'abc' },
+    Minimal: { url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', attr: '&copy; OpenStreetMap &copy; CARTO', max: 20, sub: 'abcd' },
+    Satellite: { url: 'https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', attr: 'Imagery &copy; Google', max: 20, sub: '0123' }
+  };
+
+  BASEMAP_OPTIONS = [
+    { value: 'Satellite', label: 'Satellite' },
+    { value: 'Terrain', label: 'Terrain' },
+    { value: 'Elevation', label: 'Elevation' },
+    { value: 'Minimal', label: 'Minimal' }
+  ];
+
+  curBasemap() { return this.state.basemap ?? (this.props.basemap || 'Terrain'); }
+
+  componentDidMount() { this._initMap(); }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._iframeT); clearTimeout(this._iframeCheckT); if (this._ro) this._ro.disconnect(); if (this.map) { this.map.remove(); this.map = null; } }
+
+  openModal(name, href, kicker) {
+    clearTimeout(this._iframeT);
+    this.setState({ cultivarModal: { name, href, kicker }, iframeStatus: 'loading' });
+    this._iframeT = setTimeout(() => {
+      this.setState(s => s.iframeStatus === 'loading' ? { iframeStatus: 'blocked' } : null);
+    }, 14000);
+  }
+
+  iframeOnLoad(e) {
+    clearTimeout(this._iframeT);
+    const f = e.target;
+    // Delay check by 2s — JS-rendered pages need time to populate the body
+    // before we can tell if the frame is empty or loaded.
+    this._iframeCheckT = setTimeout(() => {
+      let blocked = false;
+      try {
+        const doc = f.contentDocument;
+        // accessible + empty body → X-Frame blocked (browser renders empty page)
+        if (!doc || !doc.body || doc.body.children.length === 0) blocked = true;
+      } catch (ex) {
+        // SecurityError = cross-origin page loaded successfully
+        blocked = false;
+      }
+      this.setState({ iframeStatus: blocked ? 'blocked' : 'loaded' });
+    }, 2000);
+  }
+
+  _initMap() {
+    const L = window.L;
+    if (!L) { this._t = setTimeout(() => this._initMap(), 80); return; }
+    const el = document.getElementById('obmap');
+    if (!el || this.map) return;
+    this._activeKey = ''; this._activeKeySet = new Set(); this._renderedHi = '';
+    this.map = L.map(el, { zoomControl: true, scrollWheelZoom: true, doubleClickZoom: true, touchZoom: true, boxZoom: false, keyboard: true, dragging: true, maxBoundsViscosity: 1.0 });
+    this.map.zoomControl.setPosition('topright');
+    this._renderedBasemap = this.curBasemap();
+    this._setTiles();
+    const fs = this.fields();
+    this.markers = {};
+    fs.forEach(f => {
+      const m = L.marker([f.lat, f.lng], { icon: this._icon(false), riseOnHover: true }).addTo(this.map);
+      m.bindTooltip(f.en, { direction: 'top', offset: [0, -30], className: 'ob-tip', opacity: 1 });
+      m.on('click', () => this.select(f.n));
+      this.markers[f.n] = m;
+    });
+    this._fieldBounds = L.latLngBounds(fs.map(f => [f.lat, f.lng]));
+    this._fit();
+    // Constrain: can't zoom out past the fitted view, can't pan far from the area
+    const fitZoom = this.map.getZoom();
+    this.map.setMinZoom(fitZoom);
+    this.map.setMaxZoom(19);
+    this.map.setMaxBounds(this._fieldBounds.pad(0.45));
+    this._ro = new ResizeObserver(() => { if (this.map) this.map.invalidateSize(); });
+    this._ro.observe(el);
+  }
+
+  _fit() {
+    if (!this.map || !this._fieldBounds) {
+      if (this.map) { const L = window.L; this._fieldBounds = L.latLngBounds(this.fields().map(f => [f.lat, f.lng])); }
+    }
+    if (this.map) this.map.fitBounds(this._fieldBounds, { padding: [45, 45], animate: false });
+  }
+
+  _setTiles() {
+    const L = window.L;
+    const cur = this.curBasemap();
+    const cont = this.map.getContainer();
+    if (this.tileLayer) { this.map.removeLayer(this.tileLayer); this.tileLayer = null; }
+    cont.style.background = '#dfe3d6';
+    const d = this.TILES[cur] || this.TILES.Terrain;
+    const opt = { attribution: d.attr, maxNativeZoom: d.max, maxZoom: 19, crossOrigin: true, errorTileUrl: 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==' };
+    if (d.sub) opt.subdomains = d.sub;
+    this.tileLayer = L.tileLayer(d.url, opt).addTo(this.map);
+  }
+
+  PRIMARY = '#5d7150';
+  PRIMARY_DARK = '#3f4d36';
+
+  _sprigSVG(fill, stroke) {
+    return '<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,0.45));">'
+      + '<defs>'
+      + '<path id="o_stem" d="M 122,158 L 134,158 L 128,236 Z"></path>'
+      + '<path id="o_leafL" d="M 0,0 C -17,-19 -18,-60 0,-95 C 18,-60 17,-19 0,0 Z" transform="translate(128,175) rotate(-36)"></path>'
+      + '<path id="o_leafR" d="M 0,0 C -19,-21 -20,-66 0,-105 C 20,-66 19,-21 0,0 Z" transform="translate(128,175) rotate(36)"></path>'
+      + '<path id="o_bud" d="M 0,0 C -6,-17 -6.5,-52 0,-82 C 6.5,-52 6,-17 0,0 Z" transform="translate(128,175)"></path>'
+      + '</defs>'
+      + '<g fill="none" stroke="' + stroke + '" stroke-width="24" stroke-linejoin="round" stroke-linecap="round"><use href="#o_stem"></use><use href="#o_leafL"></use><use href="#o_leafR"></use><use href="#o_bud"></use></g>'
+      + '<g fill="' + fill + '"><use href="#o_stem"></use><use href="#o_leafL"></use><use href="#o_leafR"></use><use href="#o_bud"></use></g>'
+      + '</svg>';
+  }
+
+  _icon(selected) {
+    const L = window.L;
+    // viewBox 256x256; bottom stem point sits at x=128, y=236
+    const w = selected ? 50 : 36;
+    const h = w;
+    const fill = selected ? this.PRIMARY_DARK : '#A5B700';
+    const stroke = selected ? '#ffffff' : '#1c1c1a';
+    const html = '<div style="width:' + w + 'px;height:' + h + 'px;">' + this._sprigSVG(fill, stroke) + '</div>';
+    return L.divIcon({ html, className: 'ob-pin', iconSize: [w, h], iconAnchor: [w * 128 / 256, h * 236 / 256] });
+  }
+
+  componentDidUpdate(prevProps) {
+    prevProps = prevProps || {};
+    if (!this.map) return;
+    const cur = this.curBasemap();
+    if (this._renderedBasemap !== cur) { this._renderedBasemap = cur; this._setTiles(); }
+    const sel = this.state.selectedId, hi = this.state.highlightIds || [];
+    const activeSet = new Set(hi); if (sel) activeSet.add(sel);
+    const key = [...activeSet].sort((a, b) => a - b).join(',');
+    if (this._activeKey !== key) {
+      const prev = this._activeKeySet || new Set();
+      this.fields().forEach(f => { const a = activeSet.has(f.n), was = prev.has(f.n); if (a !== was && this.markers[f.n]) this.markers[f.n].setIcon(this._icon(a)); });
+      this._activeKey = key; this._activeKeySet = activeSet;
+    }
+    // Zoom: into the selected field; back out to the full map when it closes.
+    if (this._renderedSel !== sel) {
+      this._renderedSel = sel;
+      if (sel) {
+        const f = this.fields().find(x => x.n === sel);
+        if (f) this.map.flyTo([f.lat, f.lng], Math.min(18, this.map.getMaxZoom()), { duration: 0.6 });
+      } else if (!hi.length) {
+        this._flyHome();
+      }
+    }
+    const hiKey = hi.slice().sort((a, b) => a - b).join(',');
+    if (this._renderedHi !== hiKey) {
+      this._renderedHi = hiKey;
+      if (hi.length > 1) {
+        const L = window.L;
+        const pts = hi.map(id => { const f = this.fields().find(x => x.n === id); return f ? [f.lat, f.lng] : null; }).filter(Boolean);
+        if (pts.length) this.map.flyToBounds(L.latLngBounds(pts).pad(0.25), { maxZoom: 16, duration: 0.5 });
+      } else if (!hi.length && !sel) {
+        this._flyHome();
+      }
+    }
+  }
+
+  _flyHome() {
+    if (!this.map || !this._fieldBounds) return;
+    this.map.flyToBounds(this._fieldBounds, { padding: [45, 45], duration: 0.6 });
+  }
+
+  select(n) {
+    if (this.state.selectedId === n) { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null }); return; }
+    this.setState({ selectedId: n, activePhoto: 0, lightbox: false });
+  }
+  markImg(id, n, ok) { this.setState(s => { if (s.imgStatus[id + '-' + n]) return null; return { imgStatus: Object.assign({}, s.imgStatus, { [id + '-' + n]: ok ? 'loaded' : 'error' }) }; }); }
+
+  buildGallery(sel) {
+    const R = React.createElement, s = this.state;
+    const list = sel.photos || [];
+    const prober = (sel.probe || []).length ? R('div', { key: 'pb', style: { position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0, pointerEvents: 'none' } },
+      sel.probe.map((src, i) => R('img', { key: i, src, alt: '', onLoad: () => this.markImg(sel.n, i, true), onError: () => this.markImg(sel.n, i, false) }))) : null;
+    if (!list.length) {
+      const ph = R('div', { key: 'ph', style: { height: '200px', borderRadius: '3px', border: '1px dashed rgba(40,46,32,0.25)', background: 'repeating-linear-gradient(45deg,#eef0e8,#eef0e8 9px,#e6e9dd 9px,#e6e9dd 18px)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '9px', textAlign: 'center', padding: '18px' } },
+        R('span', { key: 'a', style: { fontSize: '12px', color: '#6b6b60' } }, 'No photos yet for this field'));
+      return R('div', { style: { position: 'relative' } }, prober, ph);
+    }
+    const idx = Math.max(0, Math.min(s.activePhoto || 0, list.length - 1));
+    const go = (d) => this.setState({ activePhoto: (idx + d + list.length) % list.length });
+    const expandBtn = R('button', { key: 'ex', onClick: (e) => { e.stopPropagation(); this.setState({ lightbox: true }); }, 'aria-label': 'Expand image', title: 'Expand image', style: { position: 'absolute', top: '10px', right: '10px', width: '32px', height: '32px', borderRadius: '6px', border: 'none', background: 'rgba(20,22,16,0.55)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', lineHeight: '1', padding: 0, backdropFilter: 'blur(2px)' } }, '⛶');
+    const img = R('div', { key: 'cur', style: { position: 'relative' } },
+      R('img', { src: list[idx], alt: sel.en + ' photo ' + (idx + 1), onClick: () => this.setState({ lightbox: true }), style: { width: '100%', height: '260px', objectFit: 'cover', borderRadius: '3px', display: 'block', background: '#e9ece1', cursor: 'zoom-in' } }),
+      expandBtn);
+    if (list.length === 1) return R('div', { style: { position: 'relative' } }, prober, img);
+
+    const arrowStyle = { width: '34px', height: '34px', borderRadius: '50%', border: '1px solid rgba(40,46,32,0.2)', background: '#fff', color: this.PRIMARY_DARK, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '17px', lineHeight: '1', padding: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.1)' };
+    const dots = R('div', { key: 'd', style: { display: 'flex', gap: '6px', alignItems: 'center' } },
+      list.map((_, i) => R('span', { key: i, onClick: () => this.setState({ activePhoto: i }), style: { width: i === idx ? '18px' : '7px', height: '7px', borderRadius: '999px', cursor: 'pointer', background: i === idx ? this.PRIMARY : 'rgba(40,46,32,0.2)', transition: 'width .15s, background .15s' } })));
+    const controls = R('div', { key: 'ctl', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '11px' } },
+      R('button', { key: 'p', onClick: () => go(-1), 'aria-label': 'Previous photo', style: arrowStyle }, '‹'),
+      dots,
+      R('button', { key: 'n', onClick: () => go(1), 'aria-label': 'Next photo', style: arrowStyle }, '›'));
+    return R('div', { style: { position: 'relative' } }, prober, img, controls);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const accent = this.PRIMARY, accentDark = this.PRIMARY_DARK;
+    const showList = s.listOpen ?? (this.props.showFieldList ?? true);
+    const all = this.fields();
+    const q = s.query.trim().toLowerCase();
+    const matches = (f) => !q || [f.en, f.jp].concat(f.cultivars, f.teas).some(t => String(t).toLowerCase().includes(q));
+    const sel = s.selectedId ? all.find(f => f.n === s.selectedId) : null;
+
+    const hiSet = new Set(s.highlightIds || []);
+    const listItems = all.filter(matches).map(f => {
+      const active = f.n === s.selectedId || hiSet.has(f.n);
+      return {
+        en: f.en, jp: f.jp,
+        onClick: () => this.select(f.n),
+        onEnter: () => { if (this.markers && this.markers[f.n]) this.markers[f.n].openTooltip(); },
+        onLeave: () => { if (this.markers && this.markers[f.n]) this.markers[f.n].closeTooltip(); },
+        style: { display: 'flex', alignItems: 'center', gap: '9px', padding: '9px 14px', cursor: 'pointer', borderLeft: '2px solid ' + (active ? accent : 'transparent'), background: active ? 'rgba(93,113,80,0.09)' : 'transparent' },
+        dotStyle: { width: '8px', height: '8px', borderRadius: '50%', flex: 'none', background: active ? accent : '#fff', border: '1.5px solid ' + (active ? accentDark : '#9a9a90') }
+      };
+    });
+
+    const R = React.createElement;
+    const sizeItems = all.slice().sort((a, b) => this.num(b.size) - this.num(a.size)).map((f, i) => ({ key: f.n, label: f.en, jp: f.jp, value: this.num(f.size), color: this.hueColor(i) }));
+    const totalSize = sizeItems.reduce((a, b) => a + b.value, 0);
+    const setHF = (k) => this.setState({ hoverField: k });
+    const sizeChart = R('div', null,
+      this.donut(sizeItems, s.hoverField, { centerTitle: 'Total area', centerValue: totalSize.toLocaleString() + ' m²', centerSub: sizeItems.length + ' fields', onHover: setHF, onClick: it => this.chartSelectField(it.key) }),
+      this.legend(sizeItems, s.hoverField, { cols: '1fr 1fr', fmt: it => (it.value / totalSize * 100).toFixed(1) + '%', onHover: setHF, onClick: it => this.chartSelectField(it.key) }));
+
+    const cultItems = this.CULTIVAR_AREAS.map((d, i) => ({ key: d[0], label: d[0], jp: this.CULTIVAR_JP[d[0]] || '', value: d[1], color: this.hueColor(i) }));
+    const totalCult = cultItems.reduce((a, b) => a + b.value, 0);
+    const setHC = (k) => this.setState({ hoverCultivar: k });
+    const cultivarChart = R('div', null,
+      this.donut(cultItems, s.hoverCultivar, { centerTitle: 'Total area', centerValue: totalCult.toLocaleString() + ' m²', centerSub: cultItems.length + ' cultivars', onHover: setHC, onClick: it => this.chartHighlightCultivar(it.key) }),
+      this.legend(cultItems, s.hoverCultivar, { cols: '1fr 1fr', fmt: it => (it.value / totalCult * 100).toFixed(1) + '%', onHover: setHC, onClick: it => this.chartHighlightCultivar(it.key) }));
+
+    const elevChart = this.elevationChart(s.hoverElev, (k) => this.setState({ hoverElev: k }), (f) => this.chartSelectField(f.n));
+
+    const hi = s.highlightIds || [];
+    let highlightLabel = '';
+    if (hi.length) {
+      if (s.activeCultivar) highlightLabel = hi.length + ' field' + (hi.length > 1 ? 's' : '') + ' · ' + s.activeCultivar;
+      else { const f = all.find(x => x.n === hi[0]); highlightLabel = f ? f.en : hi.length + ' fields'; }
+    }
+
+    return {
+      showList, query: s.query,
+      chartsOpen: !!s.chartsOpen,
+      toggleCharts: () => this.setState(st => ({ chartsOpen: !st.chartsOpen })),
+      chartsLabel: s.chartsOpen ? 'Hide charts' : 'Show charts',
+      chartsBg: s.chartsOpen ? 'rgba(40,46,32,0.06)' : '#fff',
+      closeCharts: () => this.setState({ chartsOpen: false }),
+      sizeChart, cultivarChart, elevChart,
+      highlightActive: hi.length > 0,
+      highlightLabel,
+      clearHighlight: () => this.clearHighlight(),
+      toggleList: () => this.setState(st => ({ listOpen: !(st.listOpen ?? (this.props.showFieldList ?? true)) })),
+      toggleLabel: showList ? 'Hide field list' : 'Show field list',
+      toggleBg: showList ? 'rgba(40,46,32,0.06)' : '#fff',
+      basemap: this.curBasemap(),
+      basemapOptions: this.BASEMAP_OPTIONS,
+      setBasemap: (e) => this.setState({ basemap: e.target.value }),
+      setQuery: (e) => this.setState({ query: e.target.value }),
+      listItems,
+      panelOpen: !!sel,
+      closePanel: () => this.setState({ selectedId: null, lightbox: false }),
+      gallery: sel ? this.buildGallery(sel) : null,
+      lightboxOpen: !!(sel && s.lightbox && sel.photos.length),
+      lightboxImg: (sel && s.lightbox && sel.photos.length) ? React.createElement('img', { src: sel.photos[Math.max(0, Math.min(s.activePhoto || 0, sel.photos.length - 1))], alt: '', onClick: (e) => e.stopPropagation(), style: { maxWidth: '94vw', maxHeight: '82vh', objectFit: 'contain', borderRadius: '5px', boxShadow: '0 16px 60px rgba(0,0,0,0.55)', cursor: 'default' } }) : null,
+      lightboxCaption: sel ? sel.en + (sel.photos.length > 1 ? ' · ' + (Math.min((s.activePhoto || 0) + 1, sel.photos.length)) + ' / ' + sel.photos.length : '') : '',
+      lbMulti: !!(sel && sel.photos.length > 1),
+      closeLightbox: () => this.setState({ lightbox: false }),
+      cultivarModalOpen: !!s.cultivarModal,
+      cultivarModalName: s.cultivarModal ? s.cultivarModal.name : '',
+      cultivarModalKicker: s.cultivarModal ? s.cultivarModal.kicker : '',
+      cultivarModalUrl: s.cultivarModal ? s.cultivarModal.href : 'about:blank',
+      closeCultivarModal: () => { clearTimeout(this._iframeT); clearTimeout(this._iframeCheckT); this.setState({ cultivarModal: null, iframeStatus: 'idle' }); },
+      iframeOnLoad: (e) => this.iframeOnLoad(e),
+      iframeLoading: s.iframeStatus === 'loading',
+      iframeBlocked: s.iframeStatus === 'blocked',
+      stop: (e) => e.stopPropagation(),
+      lbPrevStop: (e) => { e.stopPropagation(); if (!sel) return; const L = sel.photos.length; this.setState(st => ({ activePhoto: ((st.activePhoto || 0) - 1 + L) % L })); },
+      lbNextStop: (e) => { e.stopPropagation(); if (!sel) return; const L = sel.photos.length; this.setState(st => ({ activePhoto: ((st.activePhoto || 0) + 1) % L })); },
+      noTeas: !!sel && sel.teas.length === 0,
+      selected: sel ? {
+        en: sel.en, jp: sel.jp, natural: sel.natural, conventional: !sel.natural,
+        numText: 'No. ' + String(sel.n).padStart(2, '0'),
+        elevText: sel.emin + ' – ' + sel.emax + ' m',
+        sizeText: sel.size + ' m²',
+        cultivars: [...new Set(sel.cultivars.map(c => this.baseCultivar(c)))].map(name => { const href = this.cultivarHref(name) || 'https://www.myjapanesegreentea.com/japanese-tea-cultivars'; return { name, href, onClick: (e) => { e.preventDefault(); this.openModal(name, href, 'Cultivar'); } }; }),
+        teas: sel.teas.map(name => { const plain = !!this.NO_TEA[name]; const href = this.teaHref(name); return { name, plain, hasLink: !plain, href, onClick: (e) => { e.preventDefault(); this.openModal(name, href, 'Obubu Shop'); } }; }), hasTeas: sel.teas.length > 0,
+        gmaps: sel.gmaps, placeholderPath: 'photos/' + sel.slug + '/'
+      } : null
+    };
+  }
+}
+</script>
+</body>
+</html>
