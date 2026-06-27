@@ -111,7 +111,7 @@
           <button onClick="{{ closeGallery }}" aria-label="Hide gallery" style="border:none;background:none;cursor:pointer;color:#8a8a80;padding:4px 8px;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;" style-hover="color:#33332b;">Hide&nbsp;‹</button>
         </div>
         <div style="padding:10px 12px;border-bottom:1px solid rgba(40,46,32,0.08);">
-          <input value="{{ galleryQuery }}" onChange="{{ setGalleryQuery }}" placeholder="Filter fields…" style="width:100%;padding:8px 11px;font-size:13px;font-family:inherit;border:1px solid rgba(40,46,32,0.18);border-radius:3px;background:#fff;color:#1c1c1a;outline:none;" />
+          <input value="{{ galleryQuery }}" onChange="{{ setGalleryQuery }}" placeholder="Filter by field, cultivar, tea…" style="width:100%;padding:8px 11px;font-size:13px;font-family:inherit;border:1px solid rgba(40,46,32,0.18);border-radius:3px;background:#fff;color:#1c1c1a;outline:none;" />
         </div>
         <div style="flex:1;overflow-y:auto;padding:16px 16px 32px;">
           <div>{{ galleryGrid }}</div>
@@ -412,7 +412,7 @@ class Component extends DCLogic {
   buildGalleryGrid(fields, query, selId) {
     const R = React.createElement;
     const q = query.trim().toLowerCase();
-    const shown = q ? fields.filter(f => f.en.toLowerCase().includes(q) || f.jp.includes(q)) : fields;
+    const shown = q ? fields.filter(f => [f.en, f.jp].concat(f.cultivars, f.teas).some(t => String(t).toLowerCase().includes(q))) : fields;
     const withPhotos = shown.filter(f => f.photos && f.photos.length > 0);
     const noPhotos = shown.filter(f => !f.photos || f.photos.length === 0);
 
