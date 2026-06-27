@@ -21,6 +21,7 @@
   @keyframes obPanel{from{transform:translateX(22px);}to{transform:translateX(0);}}
   @keyframes obSpin{to{transform:rotate(360deg);}}
   @keyframes obList{from{width:0;opacity:0;}to{width:274px;opacity:1;}}
+  @keyframes obGallery{from{transform:translateX(-24px);opacity:0;}to{transform:translateX(0);opacity:1;}}
   .leaflet-container{font-family:'Hanken Grotesk',system-ui,sans-serif;background:#dfe3d6;}
   .ob-pin{background:transparent;border:none;}
   .ob-pin>div{transition:width .12s, height .12s;}
@@ -101,7 +102,7 @@
     </sc-if>
 
     <sc-if value="{{ galleryOpen }}" hint-placeholder-val="{{ false }}">
-      <aside data-screen-label="Gallery" style="flex:none;width:400px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+      <aside data-screen-label="Gallery" style="flex:none;width:800px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obGallery .26s cubic-bezier(.2,.7,.2,1);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.08);">
           <div>
             <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">All fields</div>
@@ -419,7 +420,7 @@ class Component extends DCLogic {
       const isSel = f.n === selId;
       const hero = f.photos[0];
       return R('div', { key: f.n, onClick: () => this.chartSelectField(f.n), style: { cursor: 'pointer', borderRadius: '6px', overflow: 'hidden', background: '#fff', boxShadow: isSel ? '0 0 0 2px ' + this.PRIMARY + ', 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.08)', transition: 'box-shadow .15s' } },
-        R('div', { style: { position: 'relative', paddingTop: '66%', background: '#e9ece1' } },
+        R('div', { style: { position: 'relative', paddingTop: '72%', background: '#e9ece1' } },
           R('img', { src: hero, alt: f.en, style: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }),
           f.photos.length > 1 ? R('div', { style: { position: 'absolute', top: '7px', right: '7px', background: 'rgba(18,20,14,0.65)', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '2px 7px', borderRadius: '999px' } }, f.photos.length + ' photos') : null,
           f.natural ? R('div', { style: { position: 'absolute', top: '7px', left: '7px', background: this.PRIMARY, color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '999px', letterSpacing: '0.06em', textTransform: 'uppercase' } }, 'Natural') : null),
@@ -440,7 +441,7 @@ class Component extends DCLogic {
 
     const sections = [];
     if (withPhotos.length) {
-      sections.push(R('div', { key: 'grid', style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: noPhotos.length ? '24px' : 0 } }, withPhotos.map(card)));
+      sections.push(R('div', { key: 'grid', style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: noPhotos.length ? '24px' : 0 } }, withPhotos.map(card)));
     }
     if (noPhotos.length) {
       sections.push(R('div', { key: 'nph' },
@@ -702,7 +703,7 @@ class Component extends DCLogic {
       chartsBg: s.chartsOpen ? 'rgba(40,46,32,0.06)' : '#fff',
       closeCharts: () => this.setState({ chartsOpen: false }),
       galleryOpen: !!s.galleryOpen,
-      toggleGallery: () => this.setState(st => ({ galleryOpen: !st.galleryOpen, chartsOpen: false })),
+      toggleGallery: () => this.setState(st => ({ galleryOpen: !st.galleryOpen, chartsOpen: false, listOpen: st.galleryOpen ? (st.listOpen ?? true) : false })),
       galleryLabel: s.galleryOpen ? 'Hide gallery' : 'Show gallery',
       galleryBg: s.galleryOpen ? 'rgba(40,46,32,0.06)' : '#fff',
       closeGallery: () => this.setState({ galleryOpen: false }),
