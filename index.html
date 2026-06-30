@@ -15,7 +15,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   *{box-sizing:border-box;}
-  html,body{margin:0;height:100%;}
+  html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;}
   ::-webkit-scrollbar{width:10px;height:10px;}
   ::-webkit-scrollbar-thumb{background:rgba(40,46,32,0.18);border-radius:6px;border:3px solid transparent;background-clip:padding-box;}
   @keyframes obPanel{from{transform:translateX(22px);}to{transform:translateX(0);}}
@@ -46,7 +46,7 @@
   }
 </style>
 </helmet>
-<div data-screen-label="Wazuka Tea Fields Map" style="height:100vh;display:flex;flex-direction:column;font-family:'Hanken Grotesk',system-ui,sans-serif;color:#1c1c1a;background:#f4f3ec;overflow:hidden;">
+<div data-screen-label="Wazuka Tea Fields Map" style="position:fixed;inset:0;height:100dvh;display:flex;flex-direction:column;font-family:'Hanken Grotesk',system-ui,sans-serif;color:#1c1c1a;background:#f4f3ec;overflow:hidden;">
 
   <header class="ob-header" style="flex: none; display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid rgba(40,46,32,0.12); background: #fbfaf5; z-index: 50; position: relative">
     <div class="ob-header-left" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;order:1;min-width:0;">
@@ -250,7 +250,7 @@
     </sc-if>
 
     <sc-if value="{{ mobileSheetOpen }}" hint-placeholder-val="{{ false }}">
-      <aside id="ob-sheet" data-screen-label="Field detail" style="position:fixed;left:0;right:0;bottom:0;z-index:2000;background:#fbfaf5;border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(20,24,14,0.18);display:flex;flex-direction:column;max-height:88vh;animation:obSheetUp .28s cubic-bezier(.2,.7,.2,1);">
+      <aside id="ob-sheet" data-screen-label="Field detail" style="position:fixed;left:0;right:0;bottom:0;z-index:2000;background:#fbfaf5;border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(20,24,14,0.18);display:flex;flex-direction:column;max-height:88dvh;animation:obSheetUp .28s cubic-bezier(.2,.7,.2,1);">
         <div onPointerDown="{{ sheetDown }}" onPointerMove="{{ sheetMove }}" onPointerUp="{{ sheetUp }}" style="flex:none;cursor:grab;padding:8px 18px 13px;touch-action:none;">
           <div style="width:60px;height:5px;border-radius:999px;background:rgba(40,46,32,0.22);margin:0 auto 12px;"></div>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
