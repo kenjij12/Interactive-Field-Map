@@ -42,7 +42,7 @@
     .ob-mapstyle-label{display:none !important;}
     .ob-header-tools{order:3 !important;flex-basis:100% !important;justify-content:flex-start !important;margin-top:4px;}
     .ob-toolbtn{padding:0 12px !important;height:34px !important;gap:7px !important;flex:1 1 0 !important;}
-    .ob-aside{position:fixed !important;top:0 !important;left:0 !important;bottom:0 !important;width:88vw !important;max-width:360px !important;z-index:3000 !important;box-shadow:0 0 50px rgba(0,0,0,0.4) !important;animation:obSlideL .26s ease !important;}
+    .ob-aside{position:fixed !important;top:0 !important;left:0 !important;bottom:0 !important;width:88vw !important;max-width:360px !important;z-index:3000 !important;box-shadow:0 0 50px rgba(0,0,0,0.4) !important;animation:obSlideL .26s ease !important;touch-action:pan-y !important;}
   }
 </style>
 </helmet>
@@ -98,7 +98,7 @@
   <div style="flex:1;display:flex;min-height:0;position:relative;">
 
     <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
-      <aside class="ob-aside" style="flex:none;width:274px;border-right:1px solid rgba(40,46,32,0.12);display:flex;flex-direction:column;background:#fbfaf5;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+      <aside class="ob-aside" onPointerDown="{{ drawerDown }}" onPointerMove="{{ drawerMove }}" onPointerUp="{{ drawerUp }}" style="flex:none;width:274px;border-right:1px solid rgba(40,46,32,0.12);display:flex;flex-direction:column;background:#fbfaf5;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 10px 11px 16px;border-bottom:1px solid rgba(40,46,32,0.08);">
           <span style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">All fields</span>
           <button onClick="{{ toggleList }}" aria-label="Hide field list" title="Hide field list" style="border:none;background:none;cursor:pointer;color:#8a8a80;padding:4px 8px;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;" style-hover="color:#33332b;">Hide&nbsp;‹</button>
@@ -119,7 +119,7 @@
     </sc-if>
 
     <sc-if value="{{ galleryOpen }}" hint-placeholder-val="{{ false }}">
-      <aside class="ob-aside" data-screen-label="Gallery" style="flex:none;width:600px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+      <aside class="ob-aside" onPointerDown="{{ drawerDown }}" onPointerMove="{{ drawerMove }}" onPointerUp="{{ drawerUp }}" data-screen-label="Gallery" style="flex:none;width:600px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.08);">
           <div>
             <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">All fields</div>
@@ -137,7 +137,7 @@
     </sc-if>
 
     <sc-if value="{{ chartsOpen }}" hint-placeholder-val="{{ false }}">
-      <aside class="ob-aside" data-screen-label="Charts" style="flex:none;width:436px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+      <aside class="ob-aside" onPointerDown="{{ drawerDown }}" onPointerMove="{{ drawerMove }}" onPointerUp="{{ drawerUp }}" data-screen-label="Charts" style="flex:none;width:436px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.08);">
           <div>
             <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">Field insights</div>
@@ -251,15 +251,15 @@
 
     <sc-if value="{{ mobileSheetOpen }}" hint-placeholder-val="{{ false }}">
       <aside id="ob-sheet" data-screen-label="Field detail" style="position:fixed;left:0;right:0;bottom:0;z-index:2000;background:#fbfaf5;border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(20,24,14,0.18);display:flex;flex-direction:column;max-height:88vh;animation:obSheetUp .28s cubic-bezier(.2,.7,.2,1);">
-        <div onClick="{{ toggleSheet }}" style="flex:none;cursor:pointer;padding:8px 18px 13px;">
-          <div onPointerDown="{{ sheetDown }}" onPointerMove="{{ sheetMove }}" onPointerUp="{{ sheetUp }}" style="width:60px;height:5px;border-radius:999px;background:rgba(40,46,32,0.22);margin:0 auto 12px;cursor:grab;touch-action:none;"></div>
+        <div onPointerDown="{{ sheetDown }}" onPointerMove="{{ sheetMove }}" onPointerUp="{{ sheetUp }}" style="flex:none;cursor:grab;padding:8px 18px 13px;touch-action:none;">
+          <div style="width:60px;height:5px;border-radius:999px;background:rgba(40,46,32,0.22);margin:0 auto 12px;"></div>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
             <div style="min-width:0;">
               <div style="font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">{{ selected.numText }}</div>
               <h2 style="margin:3px 0 1px;font-size:21px;font-weight:600;letter-spacing:-0.01em;color:#1c1c1a;">{{ selected.en }}</h2>
               <div style="font-family:'Zen Kaku Gothic New',sans-serif;font-size:13px;color:#7b7b71;">{{ selected.jp }}</div>
             </div>
-            <button onClick="{{ sheetClose }}" aria-label="Close" style="flex:none;border:none;background:rgba(40,46,32,0.06);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:19px;line-height:1;color:#8a8a80;">×</button>
+            <button onClick="{{ sheetClose }}" onPointerDown="{{ stop }}" aria-label="Close" style="flex:none;border:none;background:rgba(40,46,32,0.06);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:19px;line-height:1;color:#8a8a80;">×</button>
           </div>
           <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px 14px;margin-top:13px;">
             <div style="display:flex;flex-direction:column;">
@@ -614,8 +614,34 @@ class Component extends DCLogic {
     const dy = this._dragLast || 0, expanded = this.state.sheetExpanded;
     const reset = () => { if (el) el.style.transform = ''; };
     if (dy > 90) { reset(); if (expanded) this.setState({ sheetExpanded: false }); else { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null, sheetExpanded: false }); this._flyHome(); } }
-    else if (dy < -36) { reset(); this.setState({ sheetExpanded: true }); }
+    else if (dy < -36) { reset(); if (!expanded) this.setState({ sheetExpanded: true }); }
+    else if (Math.abs(dy) < 8) { reset(); this.setState({ sheetExpanded: !expanded }); }
     else { reset(); }
+  }
+
+  _drawerDown(e) {
+    if (!this.state.isMobile) return;
+    this._dxStart = e.clientX; this._dyStart = e.clientY; this._dxLast = 0; this._drawerSwiping = false; this._drawerEl = e.currentTarget;
+  }
+  _drawerMove(e) {
+    if (this._dxStart == null) return;
+    const dx = e.clientX - this._dxStart, dy = e.clientY - this._dyStart; this._dxLast = dx;
+    if (!this._drawerSwiping) {
+      if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) { this._drawerSwiping = true; }
+      else if (Math.abs(dy) > 12) { this._dxStart = null; return; }
+    }
+    if (this._drawerSwiping && this._drawerEl) {
+      const off = Math.min(0, dx);
+      this._drawerEl.style.transition = 'none';
+      this._drawerEl.style.transform = 'translateX(' + off + 'px)';
+    }
+  }
+  _drawerUp(e) {
+    const el = this._drawerEl, dx = this._dxLast || 0, swiping = this._drawerSwiping;
+    this._dxStart = null; this._drawerSwiping = false; this._drawerEl = null;
+    if (el) el.style.transition = '';
+    if (swiping && dx < -70) { if (el) el.style.transform = 'translateX(-100%)'; this.setState({ listOpen: false, galleryOpen: false, chartsOpen: false }); }
+    else if (el) { el.style.transform = ''; }
   }
 
   _initMap() {
@@ -643,6 +669,7 @@ class Component extends DCLogic {
     this.map.setMinZoom(fitZoom);
     this.map.setMaxZoom(19);
     this.map.setMaxBounds(this._fieldBounds.pad(0.45));
+    if (this.state.isMobile) { this.map.setView(this._fieldBounds.getCenter(), Math.min(fitZoom + 1, 19), { animate: false }); }
     this._ro = new ResizeObserver(() => { if (this.map) this.map.invalidateSize(); });
     this._ro.observe(el);
   }
@@ -829,6 +856,9 @@ class Component extends DCLogic {
       sheetDown: (e) => this._sheetDown(e),
       sheetMove: (e) => this._sheetMove(e),
       sheetUp: (e) => this._sheetUp(e),
+      drawerDown: (e) => this._drawerDown(e),
+      drawerMove: (e) => this._drawerMove(e),
+      drawerUp: (e) => this._drawerUp(e),
       mobileDrawerBackdrop: isMobile && (showList || !!s.galleryOpen || !!s.chartsOpen),
       closeAllDrawers: () => this.setState({ listOpen: false, galleryOpen: false, chartsOpen: false }),
       zoomOut: () => { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null, sheetExpanded: false }); this._flyHome(); },
