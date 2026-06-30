@@ -21,7 +21,6 @@
   @keyframes obPanel{from{transform:translateX(22px);}to{transform:translateX(0);}}
   @keyframes obSpin{to{transform:rotate(360deg);}}
   @keyframes obList{from{width:0;opacity:0;}to{width:274px;opacity:1;}}
-  @keyframes obGallery{from{transform:translateX(-24px);opacity:0;}to{transform:translateX(0);opacity:1;}}
   .leaflet-container{font-family:'Hanken Grotesk',system-ui,sans-serif;background:#dfe3d6;}
   .ob-pin{background:transparent;border:none;}
   .ob-pin>div{transition:width .12s, height .12s;}
@@ -29,46 +28,61 @@
   .leaflet-tooltip.ob-tip.leaflet-tooltip-top::before{border-top-color:#26261f;}
   .leaflet-bar a{color:#33332b;}
   .leaflet-control-attribution{font-size:10px;background:rgba(251,250,245,0.82);}
+  @keyframes obSlideL{from{transform:translateX(-100%);}to{transform:translateX(0);}}
+  @keyframes obSheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+  @media (max-width:768px){
+    .ob-header{padding:9px 13px !important;flex-wrap:nowrap !important;gap:8px !important;}
+    .ob-header-left{gap:8px !important;flex-wrap:nowrap !important;min-width:0 !important;}
+    .ob-title-wrap{margin-right:2px !important;min-width:0 !important;}
+    .ob-header-title{font-size:15px !important;max-width:38vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ob-header-sub{display:none !important;}
+    .ob-header-hint{display:none !important;}
+    .ob-btnlabel{display:none !important;}
+    .ob-mapstyle-label{display:none !important;}
+    .ob-toolbtn{padding:0 9px !important;height:36px !important;gap:0 !important;}
+    .ob-header-right{gap:8px !important;}
+    .ob-aside{position:fixed !important;top:0 !important;left:0 !important;bottom:0 !important;width:88vw !important;max-width:360px !important;z-index:3000 !important;box-shadow:0 0 50px rgba(0,0,0,0.4) !important;animation:obSlideL .26s ease !important;}
+  }
 </style>
 </helmet>
 <div data-screen-label="Wazuka Tea Fields Map" style="height:100vh;display:flex;flex-direction:column;font-family:'Hanken Grotesk',system-ui,sans-serif;color:#1c1c1a;background:#f4f3ec;overflow:hidden;">
 
-  <header style="flex: none; display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid rgba(40,46,32,0.12); background: #fbfaf5; z-index: 50; position: relative">
-    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <div style="display:flex;flex-direction:column;gap:1px;margin-right:6px;">
-        <h1 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.01em;color:#1c1c1a;">Tea Fields of Obubu Tea Farms</h1>
-        <span style="font-size:11.5px;color:#a6a699;letter-spacing:0.04em;">An Interactive Map by Kenji (Intern #218)</span>
+  <header class="ob-header" style="flex: none; display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid rgba(40,46,32,0.12); background: #fbfaf5; z-index: 50; position: relative">
+    <div class="ob-header-left" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <div class="ob-title-wrap" style="display:flex;flex-direction:column;gap:1px;margin-right:6px;">
+        <h1 class="ob-header-title" style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.01em;color:#1c1c1a;">Tea Fields of Obubu Tea Farms</h1>
+        <span class="ob-header-sub" style="font-size:11.5px;color:#a6a699;letter-spacing:0.04em;">An Interactive Map by Kenji (Intern #218)</span>
       </div>
-      <button onClick="{{ toggleList }}" aria-label="{{ toggleLabel }}" title="{{ toggleLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ toggleBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
+      <button class="ob-toolbtn" onClick="{{ toggleList }}" aria-label="{{ toggleLabel }}" title="{{ toggleLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ toggleBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
         <span style="display:flex;flex-direction:column;gap:2.5px;">
           <span style="width:15px;height:2px;background:#33332b;border-radius:2px;"></span>
           <span style="width:15px;height:2px;background:#33332b;border-radius:2px;"></span>
           <span style="width:15px;height:2px;background:#33332b;border-radius:2px;"></span>
         </span>
-        Fields
+        <span class="ob-btnlabel">Fields</span>
       </button>
-      <button onClick="{{ toggleCharts }}" aria-label="{{ chartsLabel }}" title="{{ chartsLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ chartsBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
+      <button class="ob-toolbtn" onClick="{{ toggleCharts }}" aria-label="{{ chartsLabel }}" title="{{ chartsLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ chartsBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
         <span style="display:flex;align-items:flex-end;gap:2px;height:13px;">
           <span style="width:3px;height:6px;background:#33332b;border-radius:1px;"></span>
           <span style="width:3px;height:13px;background:#33332b;border-radius:1px;"></span>
           <span style="width:3px;height:9px;background:#33332b;border-radius:1px;"></span>
         </span>
-        Charts
+        <span class="ob-btnlabel">Charts</span>
       </button>
-      <button onClick="{{ toggleGallery }}" aria-label="{{ galleryLabel }}" title="{{ galleryLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ galleryBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
+      <button class="ob-toolbtn" onClick="{{ toggleGallery }}" aria-label="{{ galleryLabel }}" title="{{ galleryLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ galleryBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
         <span style="display:grid;grid-template-columns:1fr 1fr;gap:2px;width:13px;height:13px;">
           <span style="background:#33332b;border-radius:1px;"></span>
           <span style="background:#33332b;border-radius:1px;"></span>
           <span style="background:#33332b;border-radius:1px;"></span>
           <span style="background:#33332b;border-radius:1px;"></span>
         </span>
-        Gallery
+        <span class="ob-btnlabel">Gallery</span>
       </button>
     </div>
-    <div style="display:flex;align-items:center;gap:16px;">
-      <span style="font-size:12.5px;color:#8a8a7e;">Click any pin for field details</span>
+    <div class="ob-header-right" style="display:flex;align-items:center;gap:16px;">
+      <span class="ob-header-hint" style="font-size:12.5px;color:#8a8a7e;">Click any pin for field details</span>
       <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#8a8a7e;">
-        <span style="white-space:nowrap;">Map style</span>
+        <span class="ob-mapstyle-label" style="white-space:nowrap;">Map style</span>
         <select value="{{ basemap }}" onChange="{{ setBasemap }}" style="height:34px;padding:0 30px 0 11px;font-size:12.5px;font-family:inherit;font-weight:500;color:#33332b;border:1px solid rgba(40,46,32,0.2);border-radius:5px;background:#fff url('data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%226%22&gt;&lt;path d=%22M1 1l4 4 4-4%22 fill=%22none%22 stroke=%22%2333332b%22 stroke-width=%221.4%22/&gt;&lt;/svg&gt;') no-repeat right 11px center;cursor:pointer;appearance:none;-webkit-appearance:none;outline:none;">
           <sc-for list="{{ basemapOptions }}" as="o" hint-placeholder-count="5">
             <option value="{{ o.value }}">{{ o.label }}</option>
@@ -81,7 +95,7 @@
   <div style="flex:1;display:flex;min-height:0;position:relative;">
 
     <sc-if value="{{ showList }}" hint-placeholder-val="{{ true }}">
-      <aside style="flex:none;width:274px;border-right:1px solid rgba(40,46,32,0.12);display:flex;flex-direction:column;background:#fbfaf5;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+      <aside class="ob-aside" style="flex:none;width:274px;border-right:1px solid rgba(40,46,32,0.12);display:flex;flex-direction:column;background:#fbfaf5;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:11px 10px 11px 16px;border-bottom:1px solid rgba(40,46,32,0.08);">
           <span style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">All fields</span>
           <button onClick="{{ toggleList }}" aria-label="Hide field list" title="Hide field list" style="border:none;background:none;cursor:pointer;color:#8a8a80;padding:4px 8px;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;" style-hover="color:#33332b;">Hide&nbsp;‹</button>
@@ -102,7 +116,7 @@
     </sc-if>
 
     <sc-if value="{{ galleryOpen }}" hint-placeholder-val="{{ false }}">
-      <aside data-screen-label="Gallery" style="flex:none;width:800px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obGallery .26s cubic-bezier(.2,.7,.2,1);">
+      <aside class="ob-aside" data-screen-label="Gallery" style="flex:none;width:400px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.08);">
           <div>
             <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">All fields</div>
@@ -111,7 +125,7 @@
           <button onClick="{{ closeGallery }}" aria-label="Hide gallery" style="border:none;background:none;cursor:pointer;color:#8a8a80;padding:4px 8px;display:flex;align-items:center;gap:4px;font-size:12px;font-family:inherit;" style-hover="color:#33332b;">Hide&nbsp;‹</button>
         </div>
         <div style="padding:10px 12px;border-bottom:1px solid rgba(40,46,32,0.08);">
-          <input value="{{ galleryQuery }}" onChange="{{ setGalleryQuery }}" placeholder="Filter by field, cultivar, tea…" style="width:100%;padding:8px 11px;font-size:13px;font-family:inherit;border:1px solid rgba(40,46,32,0.18);border-radius:3px;background:#fff;color:#1c1c1a;outline:none;" />
+          <input value="{{ galleryQuery }}" onChange="{{ setGalleryQuery }}" placeholder="Filter fields…" style="width:100%;padding:8px 11px;font-size:13px;font-family:inherit;border:1px solid rgba(40,46,32,0.18);border-radius:3px;background:#fff;color:#1c1c1a;outline:none;" />
         </div>
         <div style="flex:1;overflow-y:auto;padding:16px 16px 32px;">
           <div>{{ galleryGrid }}</div>
@@ -120,7 +134,7 @@
     </sc-if>
 
     <sc-if value="{{ chartsOpen }}" hint-placeholder-val="{{ false }}">
-      <aside data-screen-label="Charts" style="flex:none;width:436px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+      <aside class="ob-aside" data-screen-label="Charts" style="flex:none;width:436px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.08);">
           <div>
             <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">Field insights</div>
@@ -151,6 +165,10 @@
           </div>
         </div>
       </aside>
+    </sc-if>
+
+    <sc-if value="{{ mobileDrawerBackdrop }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ closeAllDrawers }}" style="position:fixed;inset:0;background:rgba(18,20,14,0.42);z-index:2900;"></div>
     </sc-if>
 
     <main style="flex:1;position:relative;min-width:0;background:#dfe3d6;">
@@ -219,6 +237,70 @@
       </aside>
     </sc-if>
 
+    <sc-if value="{{ mobileSheetBackdrop }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ collapseSheet }}" style="position:fixed;inset:0;background:rgba(18,20,14,0.4);z-index:1900;"></div>
+    </sc-if>
+
+    <sc-if value="{{ mobileSheetOpen }}" hint-placeholder-val="{{ false }}">
+      <aside id="ob-sheet" data-screen-label="Field detail" style="position:fixed;left:0;right:0;bottom:0;z-index:2000;background:#fbfaf5;border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(20,24,14,0.18);display:flex;flex-direction:column;max-height:88vh;animation:obSheetUp .28s cubic-bezier(.2,.7,.2,1);">
+        <div onPointerDown="{{ sheetDown }}" onPointerMove="{{ sheetMove }}" onPointerUp="{{ sheetUp }}" style="flex:none;cursor:grab;padding:8px 18px 13px;touch-action:none;">
+          <div style="width:40px;height:5px;border-radius:999px;background:rgba(40,46,32,0.22);margin:0 auto 12px;"></div>
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+            <div style="min-width:0;">
+              <div style="font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">{{ selected.numText }}</div>
+              <h2 style="margin:3px 0 1px;font-size:21px;font-weight:600;letter-spacing:-0.01em;color:#1c1c1a;">{{ selected.en }}</h2>
+              <div style="font-family:'Zen Kaku Gothic New',sans-serif;font-size:13px;color:#7b7b71;">{{ selected.jp }}</div>
+            </div>
+            <button onClick="{{ closePanel }}" aria-label="Close" style="flex:none;border:none;background:rgba(40,46,32,0.06);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:19px;line-height:1;color:#8a8a80;">×</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:15px;margin-top:13px;">
+            <div style="display:flex;flex-direction:column;">
+              <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#a6a699;font-weight:600;">Elevation</span>
+              <span style="font-size:14px;color:#26261f;">{{ selected.elevText }}</span>
+            </div>
+            <div style="width:1px;height:26px;background:rgba(40,46,32,0.12);"></div>
+            <div style="display:flex;flex-direction:column;">
+              <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#a6a699;font-weight:600;">Field size</span>
+              <span style="font-size:14px;color:#26261f;">{{ selected.sizeText }}</span>
+            </div>
+            <sc-if value="{{ selected.natural }}" hint-placeholder-val="{{ false }}">
+              <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;background:rgba(93,113,80,0.12);color:#3f4d36;font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;"><span style="width:7px;height:7px;border-radius:50%;background:#5d7150;"></span>Natural</span>
+            </sc-if>
+          </div>
+          <sc-if value="{{ sheetCollapsed }}" hint-placeholder-val="{{ true }}">
+            <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:13px;padding-top:11px;border-top:1px solid rgba(40,46,32,0.08);font-size:12.5px;color:#5d7150;font-weight:500;">Tap for photos &amp; details <span style="font-size:11px;">▾</span></div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ sheetExpanded }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:1;overflow-y:auto;padding:2px 20px 30px;">
+            <div>{{ gallery }}</div>
+            <div style="margin-top:22px;">
+              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#a6a699;font-weight:600;margin-bottom:9px;">Cultivars</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <sc-for list="{{ selected.cultivars }}" as="c" hint-placeholder-count="2">
+                  <a href="{{ c.href }}" target="_blank" rel="noopener" title="View {{ c.name }} cultivar info" style="font-size:12.5px;color:#3f4d36;background:rgba(93,113,80,0.10);border:1px solid rgba(93,113,80,0.22);padding:5px 11px;border-radius:999px;text-decoration:none;display:inline-flex;align-items:center;gap:5px;">{{ c.name }}<span style="opacity:0.5;font-size:10px;">↗</span></a>
+                </sc-for>
+              </div>
+            </div>
+            <div style="margin-top:22px;">
+              <div style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#a6a699;font-weight:600;margin-bottom:9px;">Produced teas · 2026</div>
+              <sc-if value="{{ selected.hasTeas }}" hint-placeholder-val="{{ true }}">
+                <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px;">
+                  <sc-for list="{{ selected.teas }}" as="t" hint-placeholder-count="2">
+                    <li style="font-size:14px;color:#33332b;display:flex;gap:9px;align-items:baseline;"><span style="width:5px;height:5px;border-radius:50%;background:#5d7150;flex:none;transform:translateY(-2px);"></span><sc-if value="{{ t.hasLink }}" hint-placeholder-val="{{ true }}"><a href="{{ t.href }}" target="_blank" rel="noopener" title="Shop {{ t.name }} at Obubu" style="color:#33332b;text-decoration:none;border-bottom:1px solid rgba(93,113,80,0.45);display:inline-flex;align-items:baseline;gap:5px;">{{ t.name }}<span style="opacity:0.5;font-size:10px;">↗</span></a></sc-if><sc-if value="{{ t.plain }}" hint-placeholder-val="{{ false }}"><span>{{ t.name }}</span></sc-if></li>
+                  </sc-for>
+                </ul>
+              </sc-if>
+              <sc-if value="{{ noTeas }}" hint-placeholder-val="{{ true }}">
+                <div style="font-size:14px;color:#9a9a8f;">Not yet assigned</div>
+              </sc-if>
+            </div>
+            <a href="{{ selected.gmaps }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;margin-top:24px;font-size:13px;color:#5d7150;text-decoration:none;border-bottom:1px solid rgba(93,113,80,0.4);padding-bottom:1px;">View location on Google Maps ↗</a>
+          </div>
+        </sc-if>
+      </aside>
+    </sc-if>
+
     <sc-if value="{{ lightboxOpen }}" hint-placeholder-val="{{ false }}">
       <div onClick="{{ closeLightbox }}" style="position:fixed;inset:0;background:rgba(18,20,14,0.92);z-index:4000;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;cursor:zoom-out;">
         {{ lightboxImg }}
@@ -268,7 +350,7 @@ class Component extends DCLogic {
     {n:28,en:'New Field',jp:'新茶畑（無名）',size:'858',emin:77,emax:86,natural:false,lat:34.777639,lng:135.8785,cultivars:['Yabukita'],teas:['No Harvest']}
   ];
 
-  state = { selectedId: null, hoveredId: null, query: '', imgStatus: {}, activePhoto: 0, chartsOpen: false, galleryOpen: false, galleryQuery: '', highlightIds: [], activeCultivar: null, hoverField: null, hoverCultivar: null, hoverElev: null };
+  state = { selectedId: null, hoveredId: null, query: '', imgStatus: {}, activePhoto: 0, chartsOpen: false, galleryOpen: false, galleryQuery: '', highlightIds: [], activeCultivar: null, hoverField: null, hoverCultivar: null, hoverElev: null, isMobile: (typeof window !== 'undefined' && window.innerWidth <= 768), sheetExpanded: false };
 
   CULTIVAR_AREAS = [
     ['Yabukita', 23897], ['Zairai', 7238], ['Okumidori', 4233], ['Gokou', 1443],
@@ -321,7 +403,7 @@ class Component extends DCLogic {
     'Natural Oolong Needles': 'https://obubutea.com/shop/all/natural-oolong-needles/',
     'Natural Sencha': 'https://obubutea.com/?s=Natural%20Sencha&post_type=product',
     'Hojicha Gold': 'https://obubutea.com/?s=Hojicha%20Gold&post_type=product',
-    'Gushing Brook Sencha': 'https://obubutea.com/?s=Saemidori%20Sencha&post_type=product'
+    'Gushing Brook Sencha': 'https://obubutea.com/shop/green-tea/kabuse/sencha-of-the-gushing-brook-80g/'
   };
   NO_TEA = { 'No Harvest': 1, 'Intern Wakoucha': 1, 'Slot 1 Intern Wakoucha': 1, 'Yamakai Sencha': 1, 'Ujihikari Sencha': 1, 'Saeakari Sencha': 1, 'Competition Sencha': 1, 'Handroll Event Kamairicha': 1, 'Samidori Sencha': 1 };
 
@@ -412,7 +494,7 @@ class Component extends DCLogic {
   buildGalleryGrid(fields, query, selId) {
     const R = React.createElement;
     const q = query.trim().toLowerCase();
-    const shown = q ? fields.filter(f => [f.en, f.jp].concat(f.cultivars, f.teas).some(t => String(t).toLowerCase().includes(q))) : fields;
+    const shown = q ? fields.filter(f => f.en.toLowerCase().includes(q) || f.jp.includes(q)) : fields;
     const withPhotos = shown.filter(f => f.photos && f.photos.length > 0);
     const noPhotos = shown.filter(f => !f.photos || f.photos.length === 0);
 
@@ -420,7 +502,7 @@ class Component extends DCLogic {
       const isSel = f.n === selId;
       const hero = f.photos[0];
       return R('div', { key: f.n, onClick: () => this.chartSelectField(f.n), style: { cursor: 'pointer', borderRadius: '6px', overflow: 'hidden', background: '#fff', boxShadow: isSel ? '0 0 0 2px ' + this.PRIMARY + ', 0 2px 8px rgba(0,0,0,0.12)' : '0 1px 3px rgba(0,0,0,0.08)', transition: 'box-shadow .15s' } },
-        R('div', { style: { position: 'relative', paddingTop: '72%', background: '#e9ece1' } },
+        R('div', { style: { position: 'relative', paddingTop: '66%', background: '#e9ece1' } },
           R('img', { src: hero, alt: f.en, style: { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', display: 'block' } }),
           f.photos.length > 1 ? R('div', { style: { position: 'absolute', top: '7px', right: '7px', background: 'rgba(18,20,14,0.65)', color: '#fff', fontSize: '10px', fontWeight: 600, padding: '2px 7px', borderRadius: '999px' } }, f.photos.length + ' photos') : null,
           f.natural ? R('div', { style: { position: 'absolute', top: '7px', left: '7px', background: this.PRIMARY, color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '999px', letterSpacing: '0.06em', textTransform: 'uppercase' } }, 'Natural') : null),
@@ -441,7 +523,7 @@ class Component extends DCLogic {
 
     const sections = [];
     if (withPhotos.length) {
-      sections.push(R('div', { key: 'grid', style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: noPhotos.length ? '24px' : 0 } }, withPhotos.map(card)));
+      sections.push(R('div', { key: 'grid', style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: noPhotos.length ? '24px' : 0 } }, withPhotos.map(card)));
     }
     if (noPhotos.length) {
       sections.push(R('div', { key: 'nph' },
@@ -453,14 +535,16 @@ class Component extends DCLogic {
   }
 
   chartSelectField(id) {
-    if (this.state.selectedId === id) { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null }); return; }
-    this.setState({ selectedId: id, activePhoto: 0, lightbox: false, highlightIds: [id], activeCultivar: null });
+    if (this.state.selectedId === id) { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null, sheetExpanded: false }); return; }
+    const extra = this.state.isMobile ? { listOpen: false, galleryOpen: false, chartsOpen: false } : {};
+    this.setState(Object.assign({ selectedId: id, activePhoto: 0, lightbox: false, highlightIds: [id], activeCultivar: null, sheetExpanded: false }, extra));
   }
   chartHighlightCultivar(name) {
     const base = this.baseCultivar(name);
     if (this.state.activeCultivar === base) { this.clearHighlight(); return; }
     const ids = this.fields().filter(f => f.cultivars.some(c => this.baseCultivar(c) === base)).map(f => f.n);
-    this.setState({ highlightIds: ids, activeCultivar: base, selectedId: null, lightbox: false });
+    const extra = this.state.isMobile ? { listOpen: false, galleryOpen: false, chartsOpen: false } : {};
+    this.setState(Object.assign({ highlightIds: ids, activeCultivar: base, selectedId: null, lightbox: false }, extra));
   }
   clearHighlight() { this.setState({ highlightIds: [], activeCultivar: null }); this._flyHome(); }
 
@@ -498,8 +582,29 @@ class Component extends DCLogic {
 
   curBasemap() { return this.state.basemap ?? (this.props.basemap || 'Satellite'); }
 
-  componentDidMount() { this._initMap(); }
-  componentWillUnmount() { clearTimeout(this._t); if (this._ro) this._ro.disconnect(); if (this.map) { this.map.remove(); this.map = null; } }
+  componentDidMount() {
+    this._initMap();
+    this._onResize = () => {
+      const m = window.innerWidth <= 768;
+      if (m !== this.state.isMobile) this.setState({ isMobile: m });
+      if (this.map) setTimeout(() => { if (this.map) this.map.invalidateSize(); }, 60);
+    };
+    window.addEventListener('resize', this._onResize);
+  }
+  componentWillUnmount() { clearTimeout(this._t); if (this._onResize) window.removeEventListener('resize', this._onResize); if (this._ro) this._ro.disconnect(); if (this.map) { this.map.remove(); this.map = null; } }
+
+  _sheetDown(e) { this._dragStartY = e.clientY; this._dragLast = 0; this._dragging = true; const el = document.getElementById('ob-sheet'); if (el) el.style.transition = 'none'; try { e.currentTarget.setPointerCapture(e.pointerId); } catch (_) {} }
+  _sheetMove(e) { if (!this._dragging) return; const dy = e.clientY - this._dragStartY; this._dragLast = dy; const el = document.getElementById('ob-sheet'); if (!el) return; const off = dy > 0 ? dy : dy * 0.22; el.style.transform = 'translateY(' + off + 'px)'; }
+  _sheetUp(e) {
+    if (!this._dragging) return; this._dragging = false;
+    const el = document.getElementById('ob-sheet'); if (el) el.style.transition = '';
+    const dy = this._dragLast || 0, expanded = this.state.sheetExpanded;
+    const reset = () => { if (el) el.style.transform = ''; };
+    if (dy > 90) { reset(); if (expanded) this.setState({ sheetExpanded: false }); else this.setState({ selectedId: null, lightbox: false, sheetExpanded: false }); }
+    else if (dy < -36) { reset(); this.setState({ sheetExpanded: true }); }
+    else if (Math.abs(dy) < 6) { reset(); this.setState({ sheetExpanded: !expanded }); }
+    else { reset(); }
+  }
 
   _initMap() {
     const L = window.L;
@@ -614,8 +719,9 @@ class Component extends DCLogic {
   }
 
   select(n) {
-    if (this.state.selectedId === n) { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null }); return; }
-    this.setState({ selectedId: n, activePhoto: 0, lightbox: false });
+    if (this.state.selectedId === n) { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null, sheetExpanded: false }); return; }
+    const extra = this.state.isMobile ? { listOpen: false, galleryOpen: false, chartsOpen: false } : {};
+    this.setState(Object.assign({ selectedId: n, activePhoto: 0, lightbox: false, sheetExpanded: false }, extra));
   }
   markImg(id, n, ok) { this.setState(s => { if (s.imgStatus[id + '-' + n]) return null; return { imgStatus: Object.assign({}, s.imgStatus, { [id + '-' + n]: ok ? 'loaded' : 'error' }) }; }); }
 
@@ -650,7 +756,9 @@ class Component extends DCLogic {
   renderVals() {
     const s = this.state;
     const accent = this.PRIMARY, accentDark = this.PRIMARY_DARK;
-    const showList = s.listOpen ?? (this.props.showFieldList ?? true);
+    const isMobile = !!s.isMobile;
+    const listDefault = isMobile ? false : (this.props.showFieldList ?? true);
+    const showList = s.listOpen ?? listDefault;
     const all = this.fields();
     const q = s.query.trim().toLowerCase();
     const matches = (f) => !q || [f.en, f.jp].concat(f.cultivars, f.teas).some(t => String(t).toLowerCase().includes(q));
@@ -697,13 +805,25 @@ class Component extends DCLogic {
 
     return {
       showList, query: s.query,
+      isMobile,
+      mobileSheetOpen: !!(isMobile && sel),
+      mobileSheetBackdrop: !!(isMobile && sel && s.sheetExpanded),
+      sheetExpanded: !!s.sheetExpanded,
+      sheetCollapsed: !s.sheetExpanded,
+      expandSheet: () => this.setState({ sheetExpanded: true }),
+      collapseSheet: () => this.setState({ sheetExpanded: false }),
+      sheetDown: (e) => this._sheetDown(e),
+      sheetMove: (e) => this._sheetMove(e),
+      sheetUp: (e) => this._sheetUp(e),
+      mobileDrawerBackdrop: isMobile && (showList || !!s.galleryOpen || !!s.chartsOpen),
+      closeAllDrawers: () => this.setState({ listOpen: false, galleryOpen: false, chartsOpen: false }),
       chartsOpen: !!s.chartsOpen,
-      toggleCharts: () => this.setState(st => ({ chartsOpen: !st.chartsOpen, galleryOpen: false })),
+      toggleCharts: () => this.setState(st => ({ chartsOpen: !st.chartsOpen, galleryOpen: false, listOpen: st.isMobile ? false : st.listOpen })),
       chartsLabel: s.chartsOpen ? 'Hide charts' : 'Show charts',
       chartsBg: s.chartsOpen ? 'rgba(40,46,32,0.06)' : '#fff',
       closeCharts: () => this.setState({ chartsOpen: false }),
       galleryOpen: !!s.galleryOpen,
-      toggleGallery: () => this.setState(st => ({ galleryOpen: !st.galleryOpen, chartsOpen: false, listOpen: st.galleryOpen ? (st.listOpen ?? true) : false })),
+      toggleGallery: () => this.setState(st => ({ galleryOpen: !st.galleryOpen, chartsOpen: false, listOpen: st.isMobile ? false : st.listOpen })),
       galleryLabel: s.galleryOpen ? 'Hide gallery' : 'Show gallery',
       galleryBg: s.galleryOpen ? 'rgba(40,46,32,0.06)' : '#fff',
       closeGallery: () => this.setState({ galleryOpen: false }),
@@ -714,7 +834,7 @@ class Component extends DCLogic {
       highlightActive: hi.length > 0,
       highlightLabel,
       clearHighlight: () => this.clearHighlight(),
-      toggleList: () => this.setState(st => ({ listOpen: !(st.listOpen ?? (this.props.showFieldList ?? true)) })),
+      toggleList: () => this.setState(st => { const def = st.isMobile ? false : (this.props.showFieldList ?? true); const open = !(st.listOpen ?? def); return st.isMobile ? { listOpen: open, galleryOpen: false, chartsOpen: false } : { listOpen: open }; }),
       toggleLabel: showList ? 'Hide field list' : 'Show field list',
       toggleBg: showList ? 'rgba(40,46,32,0.06)' : '#fff',
       basemap: this.curBasemap(),
@@ -722,8 +842,8 @@ class Component extends DCLogic {
       setBasemap: (e) => this.setState({ basemap: e.target.value }),
       setQuery: (e) => this.setState({ query: e.target.value }),
       listItems,
-      panelOpen: !!sel,
-      closePanel: () => this.setState({ selectedId: null, lightbox: false }),
+      panelOpen: !!sel && !isMobile,
+      closePanel: () => this.setState({ selectedId: null, lightbox: false, sheetExpanded: false }),
       gallery: sel ? this.buildGallery(sel) : null,
       lightboxOpen: !!(sel && s.lightbox && sel.photos.length),
       lightboxImg: (sel && s.lightbox && sel.photos.length) ? React.createElement('img', { src: sel.photos[Math.max(0, Math.min(s.activePhoto || 0, sel.photos.length - 1))], alt: '', onClick: (e) => e.stopPropagation(), style: { maxWidth: '94vw', maxHeight: '82vh', objectFit: 'contain', borderRadius: '5px', boxShadow: '0 16px 60px rgba(0,0,0,0.55)', cursor: 'default' } }) : null,
