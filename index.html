@@ -20,7 +20,7 @@
   ::-webkit-scrollbar-thumb{background:rgba(40,46,32,0.18);border-radius:6px;border:3px solid transparent;background-clip:padding-box;}
   @keyframes obPanel{from{transform:translateX(22px);}to{transform:translateX(0);}}
   @keyframes obSpin{to{transform:rotate(360deg);}}
-  @keyframes obList{from{width:0;opacity:0;}to{width:274px;opacity:1;}}
+  @keyframes obList{from{opacity:0;transform:translateX(-14px);}to{opacity:1;transform:translateX(0);}}
   .leaflet-container{font-family:'Hanken Grotesk',system-ui,sans-serif;background:#dfe3d6;}
   .ob-pin{background:transparent;border:none;}
   .ob-pin>div{transition:width .12s, height .12s;}
@@ -31,16 +31,17 @@
   @keyframes obSlideL{from{transform:translateX(-100%);}to{transform:translateX(0);}}
   @keyframes obSheetUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
   @media (max-width:768px){
-    .ob-header{padding:9px 13px !important;flex-wrap:nowrap !important;gap:8px !important;}
-    .ob-header-left{gap:8px !important;flex-wrap:nowrap !important;min-width:0 !important;}
+    .ob-header{padding:9px 13px !important;flex-wrap:wrap !important;gap:6px 8px !important;}
+    .ob-header-left{order:1 !important;flex:1 1 auto !important;min-width:0 !important;gap:8px !important;}
     .ob-title-wrap{margin-right:2px !important;min-width:0 !important;}
-    .ob-header-title{font-size:15px !important;max-width:38vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    .ob-header-sub{display:none !important;}
+    .ob-header-title{font-size:15px !important;max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .ob-header-sub{display:block !important;font-size:10.5px !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:62vw;}
+    .ob-header-right{order:2 !important;margin-left:auto !important;gap:8px !important;}
     .ob-header-hint{display:none !important;}
-    .ob-btnlabel{display:none !important;}
+    .ob-btnlabel{display:inline !important;}
     .ob-mapstyle-label{display:none !important;}
-    .ob-toolbtn{padding:0 9px !important;height:36px !important;gap:0 !important;}
-    .ob-header-right{gap:8px !important;}
+    .ob-header-tools{order:3 !important;flex-basis:100% !important;justify-content:flex-start !important;margin-top:4px;}
+    .ob-toolbtn{padding:0 12px !important;height:34px !important;gap:7px !important;flex:1 1 0 !important;}
     .ob-aside{position:fixed !important;top:0 !important;left:0 !important;bottom:0 !important;width:88vw !important;max-width:360px !important;z-index:3000 !important;box-shadow:0 0 50px rgba(0,0,0,0.4) !important;animation:obSlideL .26s ease !important;}
   }
 </style>
@@ -48,11 +49,13 @@
 <div data-screen-label="Wazuka Tea Fields Map" style="height:100vh;display:flex;flex-direction:column;font-family:'Hanken Grotesk',system-ui,sans-serif;color:#1c1c1a;background:#f4f3ec;overflow:hidden;">
 
   <header class="ob-header" style="flex: none; display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-bottom: 1px solid rgba(40,46,32,0.12); background: #fbfaf5; z-index: 50; position: relative">
-    <div class="ob-header-left" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+    <div class="ob-header-left" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;order:1;min-width:0;">
       <div class="ob-title-wrap" style="display:flex;flex-direction:column;gap:1px;margin-right:6px;">
         <h1 class="ob-header-title" style="margin:0;font-size:19px;font-weight:600;letter-spacing:-0.01em;color:#1c1c1a;">Tea Fields of Obubu Tea Farms</h1>
         <span class="ob-header-sub" style="font-size:11.5px;color:#a6a699;letter-spacing:0.04em;">An Interactive Map by Kenji (Intern #218)</span>
       </div>
+    </div>
+    <div class="ob-header-tools" style="display:flex;align-items:center;gap:10px;order:2;">
       <button class="ob-toolbtn" onClick="{{ toggleList }}" aria-label="{{ toggleLabel }}" title="{{ toggleLabel }}" style="flex:none;display:flex;align-items:center;justify-content:center;gap:7px;height:34px;padding:0 12px;border:1px solid rgba(40,46,32,0.18);border-radius:5px;background:{{ toggleBg }};color:#33332b;cursor:pointer;font-size:12.5px;font-weight:500;font-family:inherit;" style-hover="background:rgba(40,46,32,0.06);">
         <span style="display:flex;flex-direction:column;gap:2.5px;">
           <span style="width:15px;height:2px;background:#33332b;border-radius:2px;"></span>
@@ -79,7 +82,7 @@
         <span class="ob-btnlabel">Gallery</span>
       </button>
     </div>
-    <div class="ob-header-right" style="display:flex;align-items:center;gap:16px;">
+    <div class="ob-header-right" style="display:flex;align-items:center;gap:16px;order:3;margin-left:auto;">
       <span class="ob-header-hint" style="font-size:12.5px;color:#8a8a7e;">Click any pin for field details</span>
       <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#8a8a7e;">
         <span class="ob-mapstyle-label" style="white-space:nowrap;">Map style</span>
@@ -116,7 +119,7 @@
     </sc-if>
 
     <sc-if value="{{ galleryOpen }}" hint-placeholder-val="{{ false }}">
-      <aside class="ob-aside" data-screen-label="Gallery" style="flex:none;width:400px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
+      <aside class="ob-aside" data-screen-label="Gallery" style="flex:none;width:600px;border-right:1px solid rgba(40,46,32,0.12);background:#fbfaf5;display:flex;flex-direction:column;animation:obList .26s cubic-bezier(.2,.7,.2,1);">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 12px 13px 20px;border-bottom:1px solid rgba(40,46,32,0.08);">
           <div>
             <div style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">All fields</div>
@@ -178,6 +181,11 @@
           <span style="display:flex;align-items:center;gap:8px;"><span style="width:9px;height:9px;border-radius:50%;background:#a3c585;"></span>Highlighting {{ highlightLabel }}</span>
           <button onClick="{{ clearHighlight }}" style="border:none;background:rgba(255,255,255,0.16);color:#fbfaf5;cursor:pointer;font-size:12px;font-family:inherit;padding:5px 12px;border-radius:999px;" style-hover="background:rgba(255,255,255,0.28);">Clear ×</button>
         </div>
+      </sc-if>
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ zoomOut }}" aria-label="Show all fields" title="Show all fields" style="position:absolute;left:12px;bottom:30px;z-index:800;width:44px;height:44px;border-radius:50%;border:none;background:#fbfaf5;box-shadow:0 2px 10px rgba(0,0,0,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#33332b;padding:0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6"></path><path d="M20 10h-6V4"></path><path d="M14 10l7-7"></path><path d="M3 21l7-7"></path></svg>
+        </button>
       </sc-if>
     </main>
 
@@ -243,17 +251,17 @@
 
     <sc-if value="{{ mobileSheetOpen }}" hint-placeholder-val="{{ false }}">
       <aside id="ob-sheet" data-screen-label="Field detail" style="position:fixed;left:0;right:0;bottom:0;z-index:2000;background:#fbfaf5;border-radius:16px 16px 0 0;box-shadow:0 -8px 30px rgba(20,24,14,0.18);display:flex;flex-direction:column;max-height:88vh;animation:obSheetUp .28s cubic-bezier(.2,.7,.2,1);">
-        <div onPointerDown="{{ sheetDown }}" onPointerMove="{{ sheetMove }}" onPointerUp="{{ sheetUp }}" style="flex:none;cursor:grab;padding:8px 18px 13px;touch-action:none;">
-          <div style="width:40px;height:5px;border-radius:999px;background:rgba(40,46,32,0.22);margin:0 auto 12px;"></div>
+        <div onClick="{{ toggleSheet }}" style="flex:none;cursor:pointer;padding:8px 18px 13px;">
+          <div onPointerDown="{{ sheetDown }}" onPointerMove="{{ sheetMove }}" onPointerUp="{{ sheetUp }}" style="width:60px;height:5px;border-radius:999px;background:rgba(40,46,32,0.22);margin:0 auto 12px;cursor:grab;touch-action:none;"></div>
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
             <div style="min-width:0;">
               <div style="font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#a6a699;font-weight:600;">{{ selected.numText }}</div>
               <h2 style="margin:3px 0 1px;font-size:21px;font-weight:600;letter-spacing:-0.01em;color:#1c1c1a;">{{ selected.en }}</h2>
               <div style="font-family:'Zen Kaku Gothic New',sans-serif;font-size:13px;color:#7b7b71;">{{ selected.jp }}</div>
             </div>
-            <button onClick="{{ closePanel }}" aria-label="Close" style="flex:none;border:none;background:rgba(40,46,32,0.06);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:19px;line-height:1;color:#8a8a80;">×</button>
+            <button onClick="{{ sheetClose }}" aria-label="Close" style="flex:none;border:none;background:rgba(40,46,32,0.06);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:19px;line-height:1;color:#8a8a80;">×</button>
           </div>
-          <div style="display:flex;align-items:center;gap:15px;margin-top:13px;">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px 14px;margin-top:13px;">
             <div style="display:flex;flex-direction:column;">
               <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#a6a699;font-weight:600;">Elevation</span>
               <span style="font-size:14px;color:#26261f;">{{ selected.elevText }}</span>
@@ -262,6 +270,11 @@
             <div style="display:flex;flex-direction:column;">
               <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#a6a699;font-weight:600;">Field size</span>
               <span style="font-size:14px;color:#26261f;">{{ selected.sizeText }}</span>
+            </div>
+            <div style="width:1px;height:26px;background:rgba(40,46,32,0.12);"></div>
+            <div style="display:flex;flex-direction:column;min-width:0;">
+              <span style="font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:#a6a699;font-weight:600;">Cultivar</span>
+              <span style="font-size:14px;color:#26261f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ selected.cultivarNames }}</span>
             </div>
             <sc-if value="{{ selected.natural }}" hint-placeholder-val="{{ false }}">
               <span style="margin-left:auto;display:inline-flex;align-items:center;gap:5px;background:rgba(93,113,80,0.12);color:#3f4d36;font-size:11px;font-weight:600;padding:4px 9px;border-radius:999px;"><span style="width:7px;height:7px;border-radius:50%;background:#5d7150;"></span>Natural</span>
@@ -523,7 +536,7 @@ class Component extends DCLogic {
 
     const sections = [];
     if (withPhotos.length) {
-      sections.push(R('div', { key: 'grid', style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: noPhotos.length ? '24px' : 0 } }, withPhotos.map(card)));
+      sections.push(R('div', { key: 'grid', style: { display: 'grid', gridTemplateColumns: this.state.isMobile ? '1fr' : '1fr 1fr', gap: '10px', marginBottom: noPhotos.length ? '24px' : 0 } }, withPhotos.map(card)));
     }
     if (noPhotos.length) {
       sections.push(R('div', { key: 'nph' },
@@ -600,9 +613,8 @@ class Component extends DCLogic {
     const el = document.getElementById('ob-sheet'); if (el) el.style.transition = '';
     const dy = this._dragLast || 0, expanded = this.state.sheetExpanded;
     const reset = () => { if (el) el.style.transform = ''; };
-    if (dy > 90) { reset(); if (expanded) this.setState({ sheetExpanded: false }); else this.setState({ selectedId: null, lightbox: false, sheetExpanded: false }); }
+    if (dy > 90) { reset(); if (expanded) this.setState({ sheetExpanded: false }); else { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null, sheetExpanded: false }); this._flyHome(); } }
     else if (dy < -36) { reset(); this.setState({ sheetExpanded: true }); }
-    else if (Math.abs(dy) < 6) { reset(); this.setState({ sheetExpanded: !expanded }); }
     else { reset(); }
   }
 
@@ -812,11 +824,14 @@ class Component extends DCLogic {
       sheetCollapsed: !s.sheetExpanded,
       expandSheet: () => this.setState({ sheetExpanded: true }),
       collapseSheet: () => this.setState({ sheetExpanded: false }),
+      toggleSheet: () => this.setState(st => ({ sheetExpanded: !st.sheetExpanded })),
+      sheetClose: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null, sheetExpanded: false }); this._flyHome(); },
       sheetDown: (e) => this._sheetDown(e),
       sheetMove: (e) => this._sheetMove(e),
       sheetUp: (e) => this._sheetUp(e),
       mobileDrawerBackdrop: isMobile && (showList || !!s.galleryOpen || !!s.chartsOpen),
       closeAllDrawers: () => this.setState({ listOpen: false, galleryOpen: false, chartsOpen: false }),
+      zoomOut: () => { this.setState({ selectedId: null, lightbox: false, highlightIds: [], activeCultivar: null, sheetExpanded: false }); this._flyHome(); },
       chartsOpen: !!s.chartsOpen,
       toggleCharts: () => this.setState(st => ({ chartsOpen: !st.chartsOpen, galleryOpen: false, listOpen: st.isMobile ? false : st.listOpen })),
       chartsLabel: s.chartsOpen ? 'Hide charts' : 'Show charts',
@@ -862,6 +877,7 @@ class Component extends DCLogic {
         sizeText: sel.size + ' m²',
         cultivars: [...new Set(sel.cultivars.map(c => this.baseCultivar(c)))].map(name => { const href = this.cultivarHref(name) || 'https://www.myjapanesegreentea.com/japanese-tea-cultivars'; return { name, href }; }),
         teas: sel.teas.map(name => { const plain = !!this.NO_TEA[name]; const href = this.teaHref(name); return { name, plain, hasLink: !plain, href }; }), hasTeas: sel.teas.length > 0,
+        cultivarNames: [...new Set(sel.cultivars.map(c => this.baseCultivar(c)))].join(', '),
         gmaps: sel.gmaps, placeholderPath: 'photos/' + sel.slug + '/'
       } : null
     };
